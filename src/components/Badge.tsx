@@ -88,3 +88,5 @@ export default function Badge({
 }
 
 const styles = StyleSheet.create({});
+
+export { Badge };

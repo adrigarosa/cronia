@@ -108,3 +108,5 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
   },
 });
+
+export { Input };

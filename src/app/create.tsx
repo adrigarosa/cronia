@@ -101,13 +101,13 @@ export default function CreateScreen() {
 
           <View style={styles.buttonContainer}>
             <Button
-              title="Crear Tarea"
+              label="Crear Tarea"
               variant="primary"
               onPress={handleCreateTask}
               disabled={loading}
             />
             <Button
-              title="Cancelar"
+              label="Cancelar"
               variant="secondary"
               onPress={() => setSelectedType(null)}
               disabled={loading}

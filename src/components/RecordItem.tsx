@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   container: {
     padding: spacing.md,
     marginBottom: spacing.sm,
-    backgroundColor: colors.light.surface,
+    backgroundColor: colors.light.card,
     borderRadius: 8,
     borderLeftWidth: 4,
     borderLeftColor: colors.light.primary,

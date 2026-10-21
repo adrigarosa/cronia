@@ -66,3 +66,5 @@ export default function Card({
 }
 
 const styles = StyleSheet.create({});
+
+export { Card };

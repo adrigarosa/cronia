@@ -42,3 +42,5 @@ export const Spacing = {
   lineHeightMd: 1.4,
   lineHeightLg: 1.6,
 };
+
+export const spacing = Spacing;

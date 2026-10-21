@@ -17,7 +17,7 @@ export function useTheme(): UseThemeResult {
   const { settings, updateSetting } = useSettings();
 
   const currentTheme = settings?.theme || 'light';
-  const themeColors = getTheme(currentTheme).colors;
+  const themeColors = getTheme(currentTheme === 'dark' ? 'dark' : 'light').colors;
   const isDark = currentTheme === 'dark';
 
   const toggleTheme = async () => {
@@ -30,7 +30,7 @@ export function useTheme(): UseThemeResult {
   };
 
   return {
-    theme: currentTheme,
+    theme: (currentTheme === 'dark' ? 'dark' : 'light') as ThemeType,
     colors: themeColors,
     isDark,
     toggleTheme,

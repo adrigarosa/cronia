@@ -263,7 +263,7 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>Acciones</Text>
 
         <Button
-          title="Restablecer Configuracion"
+          label="Restablecer Configuracion"
           variant="secondary"
           onPress={handleResetSettings}
         />

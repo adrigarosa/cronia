@@ -114,3 +114,5 @@ export default function Button({
 }
 
 const styles = StyleSheet.create({});
+
+export { Button };

@@ -104,3 +104,5 @@ export function getRecordTypeColor(type: 'task' | 'note' | 'event' | 'habit'): s
   };
   return colors[type] || Colors.light.primary;
 }
+
+export const colors = Colors;

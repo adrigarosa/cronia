@@ -104,7 +104,7 @@ export default function DetailScreen() {
         <View style={styles.buttonContainer}>
           {task.status !== 'completed' && (
             <Button
-              title="Marcar como completado"
+              label="Marcar como completado"
               variant="primary"
               onPress={() => {
                 // TODO: Implementar completar
@@ -113,7 +113,7 @@ export default function DetailScreen() {
             />
           )}
           <Button
-            title="Eliminar"
+            label="Eliminar"
             variant="secondary"
             onPress={() => {
               // TODO: Implementar eliminar

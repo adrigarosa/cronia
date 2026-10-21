@@ -76,7 +76,7 @@ export function calculateCategoryStats(
 ): CategoryStats[] {
   return categories.map((category) => {
     const categoryTasks = tasks.filter((t) =>
-      t.categories.some((c) => c.id === category.id)
+      t.categories.some((c: any) => (typeof c === 'string' ? c : c.id) === category.id)
     );
     const completed = categoryTasks.filter((t) => t.status === 'completed').length;
     const total = categoryTasks.length;
