@@ -1,1 +1,95 @@
-/**\n * Operaciones CRUD para categorías\n */\n\nimport { execute, query, queryOne, transaction } from './db';\nimport { Category } from './types';\n\n/**\n * Crear una nueva categoría\n */\nexport async function createCategory(\n  id: string,\n  name: string\n): Promise<Category> {\n  const now = Date.now();\n  await execute(\n    'INSERT INTO categories (id, name, created_at) VALUES (?, ?, ?)',\n    [id, name, now]\n  );\n  return { id, name, created_at: now };\n}\n\n/**\n * Obtener una categoría por ID\n */\nexport async function getCategoryById(id: string): Promise<Category | null> {\n  return queryOne<Category>(\n    'SELECT * FROM categories WHERE id = ?',\n    [id]\n  );\n}\n\n/**\n * Obtener todas las categorías\n */\nexport async function getCategories(): Promise<Category[]> {\n  return query<Category>(\n    'SELECT * FROM categories ORDER BY name'\n  );\n}\n\n/**\n * Obtener categorías por nombre (búsqueda)\n */\nexport async function getCategoriesByName(name: string): Promise<Category[]> {\n  return query<Category>(\n    'SELECT * FROM categories WHERE name LIKE ? ORDER BY name',\n    [`%${name}%`]\n  );\n}\n\n/**\n * Actualizar una categoría\n */\nexport async function updateCategory(\n  id: string,\n  name: string\n): Promise<Category | null> {\n  await execute(\n    'UPDATE categories SET name = ? WHERE id = ?',\n    [name, id]\n  );\n  return getCategoryById(id);\n}\n\n/**\n * Eliminar una categoría\n */\nexport async function deleteCategory(id: string): Promise<void> {\n  await execute(\n    'DELETE FROM categories WHERE id = ?',\n    [id]\n  );\n}\n\n/**\n * Contar total de categorías\n */\nexport async function countCategories(): Promise<number> {\n  const result = await queryOne<{ count: number }>(\n    'SELECT COUNT(*) as count FROM categories'\n  );\n  return result?.count || 0;\n}\n\n/**\n * Verificar si una categoría existe\n */\nexport async function categoryExists(id: string): Promise<boolean> {\n  const result = await queryOne<{ exists: number }>(\n    'SELECT 1 as exists FROM categories WHERE id = ?',\n    [id]\n  );\n  return !!result;\n}\n"
+/**
+ * Operaciones CRUD para categorias
+ */
+
+import { execute, query, queryOne, transaction } from './db';
+import { Category } from './types';
+
+/**
+ * Crear una nueva categoria
+ */
+export async function createCategory(
+  id: string,
+  name: string
+): Promise<Category> {
+  const now = Date.now();
+  await execute(
+    'INSERT INTO categories (id, name, created_at) VALUES (?, ?, ?)',
+    [id, name, now]
+  );
+  return { id, name, created_at: now };
+}
+
+/**
+ * Obtener una categoria por ID
+ */
+export async function getCategoryById(id: string): Promise<Category | null> {
+  return queryOne<Category>(
+    'SELECT * FROM categories WHERE id = ?',
+    [id]
+  );
+}
+
+/**
+ * Obtener todas las categorias
+ */
+export async function getCategories(): Promise<Category[]> {
+  return query<Category>(
+    'SELECT * FROM categories ORDER BY name'
+  );
+}
+
+/**
+ * Obtener categorias por nombre (busqueda)
+ */
+export async function getCategoriesByName(name: string): Promise<Category[]> {
+  return query<Category>(
+    'SELECT * FROM categories WHERE name LIKE ? ORDER BY name',
+    [`%${name}%`]
+  );
+}
+
+/**
+ * Actualizar una categoria
+ */
+export async function updateCategory(
+  id: string,
+  name: string
+): Promise<Category | null> {
+  await execute(
+    'UPDATE categories SET name = ? WHERE id = ?',
+    [name, id]
+  );
+  return getCategoryById(id);
+}
+
+/**
+ * Eliminar una categoria
+ */
+export async function deleteCategory(id: string): Promise<void> {
+  await execute(
+    'DELETE FROM categories WHERE id = ?',
+    [id]
+  );
+}
+
+/**
+ * Contar total de categorias
+ */
+export async function countCategories(): Promise<number> {
+  const result = await queryOne<{ count: number }>(
+    'SELECT COUNT(*) as count FROM categories'
+  );
+  return result?.count || 0;
+}
+
+/**
+ * Verificar si una categoria existe
+ */
+export async function categoryExists(id: string): Promise<boolean> {
+  const result = await queryOne<{ exists: number }>(
+    'SELECT 1 as exists FROM categories WHERE id = ?',
+    [id]
+  );
+  return !!result;
+}
