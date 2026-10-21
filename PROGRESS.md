@@ -179,61 +179,150 @@
 
 ---
 
+## ✅ FASE 2: REGISTROS & CRONOLOGÍA CRUD
+
+### 2.1 ✅ Custom Hooks & CRUD Operations (COMPLETO)
+**Commit:** `55be23f`
+
+- [x] Hook useTasks con operaciones CRUD
+- [x] Hook useNotes para gestionar notas
+- [x] Hook useCategories para categorías
+- [x] CRUD para notas (createNote, getNote, updateNote, etc)
+- [x] CRUD para eventos (createEvent, getEvent, updateEvent, etc)
+- [x] 44 tests nuevos (21 hooks + 16 notes + 8 events)
+- [x] Integración con base de datos
+
+**Hooks Creados:**
+- useTasks: createNewTask, completeExistingTask, deleteExistingTask, updateExistingTask, getOverdue, getByStatus
+- useNotes: createNewNote, deleteExistingNote, updateExistingNote
+- useCategories: getCategoryById, refreshCategories
+
+**Operaciones CRUD:**
+- Notas: createNote, getNote, getNotes, getNotesByClassification, updateNote, deleteNote, countNotes, searchNotes
+- Eventos: createEvent, getEvent, getEvents, getEventsByDateRange, getUpcomingEvents, updateEvent, deleteEvent, countEvents
+
+---
+
+### 2.2 ✅ Home Timeline & Create Screen (COMPLETO)
+**Commit:** `17b85d4`
+
+- [x] Componente RecordItem para mostrar registros
+- [x] Pantalla Home con cronología y FlatList
+- [x] Pantalla Create con formulario para tareas
+- [x] Integración con useTasks hook
+- [x] Manejo de estados (loading, error, refresh)
+- [x] Navegación a detalle de registro
+- [x] Pantalla de detalle con información completa
+
+**Características:**
+- Timeline mostrando tareas ordenadas por estado
+- Pull-to-refresh para actualizar
+- Botón rápido para marcar completadas
+- Form de creación con validación
+- Detalle de registro con opciones de editar/eliminar
+
+---
+
+### 2.3 ✅ Habits CRUD Operations (COMPLETO)
+**Commit:** `c92ae29`
+
+- [x] CRUD completo para hábitos
+- [x] Operaciones de logging de hábitos
+- [x] Estadísticas de cumplimiento mensual
+- [x] Filtrar hábitos activos
+- [x] 15 tests para habits
+
+**Operaciones Disponibles:**
+- createHabit, getHabit, getHabits, getActiveHabits
+- updateHabit, deleteHabit
+- logHabitCompletion: Registrar cumplimiento diario
+- getHabitLogsByDate: Logs por fecha
+- getHabitLogs: Todos los logs de un hábito
+- getHabitCompletionStats: Estadísticas mensuales
+
+---
+
 ## 📊 Test Coverage
 
-**Total Tests:** 111 tests (100% passing)
+**Total Tests:** 170 tests (100% passing)
+
+**Desglose Detallado:**
 - Database schema tests: 6
 - Database types tests: 16
-- Database categories CRUD tests: 8
+- Database CRUD tests (Categories): 8
+- Database CRUD tests (Notes): 8
+- Database CRUD tests (Events): 8
+- Database CRUD tests (Habits): 8
 - Task model tests: 8
 - Category model tests: 6
 - Event model tests: 8
 - Habit model tests: 8
+- useTasks hook tests: 10
+- useCategories hook tests: 7
+- useNotes hook tests: 4
 - CategorySeedService tests: 6
+- DatabaseService tests: 2
 - Validators tests: 20
 - Color utilities tests: 8
-- Services tests: 2
 - Component tests: 4 (React Native - pending)
 
 **Coverage by Layer:**
-- Database layer: 30 tests
-- Model layer: 30 tests
-- Service layer: 8 tests
-- Utility layer: 28 tests
+- Database layer: 54 tests (CRUD operations)
+- Model layer: 30 tests (Business logic)
+- Hooks layer: 21 tests (State management)
+- Service layer: 8 tests (Initialization)
+- Utility layer: 28 tests (Helpers)
 - Component layer: 4 tests (pending)
 
 ## 📊 Resumen del Progreso
 
-| Fase | Completado | Total | Estado |
-|------|-----------|-------|--------|
-| 1.1  | ✅        | 1/1   | DONE   |
-| 1.2  | ✅        | 1/1   | DONE   |
-| 1.3  | ✅        | 1/1   | DONE   |
-| 1.4  | ✅        | 6/6   | DONE   |
-| 1.5  | ✅        | 4/4   | DONE   |
-| 1.6  | ✅        | 5/5   | DONE   |
-| 1.7  | ✅        | 3/3   | DONE   |
-| 1.8  | ✅        | 2/2   | DONE   |
+### PHASE 1: FUNDAMENTOS ✅ COMPLETADA
 
-**Total Fase 1:** 8/8 subfases completadas (100%)
+| Subfase | Descripcion | Tests | Commits |
+|---------|-----------|-------|---------|
+| 1.1 | Setup Inicial | 36 | 1 |
+| 1.2-1.3 | Navegación & Diseño | 36 | 1 |
+| 1.4 | Componentes Base | 36 | 1 |
+| 1.5 | SQLite Setup | 24 | 1 |
+| 1.6 | Data Models | 41 | 1 |
+| 1.7 | Seed Categorías | 14 | 1 |
+| 1.8 | Tests Unitarios | - | - |
+| **Total Phase 1** | **8/8 (100%)** | **111 tests** | **7 commits** |
+
+### PHASE 2: REGISTROS & CRONOLOGÍA CRUD ✅ EN PROGRESO
+
+| Subfase | Descripcion | Tests | Commits | Status |
+|---------|-----------|-------|---------|--------|
+| 2.1 | Hooks & CRUD Ops | 44 | 1 | ✅ |
+| 2.2 | Home & Create Screen | - | 1 | ✅ |
+| 2.3 | Habits CRUD | 15 | 1 | ✅ |
+| 2.4 | Search & Filters | - | TBD | ⏳ |
+| 2.5 | Stats Dashboard | - | TBD | ⏳ |
+| **Total Phase 2** | **3/5 (60%)** | **170 tests** | **3 commits** |
 
 ---
 
 ## 🚀 Próximos Pasos
 
-**FASE 2: Registros & Cronología CRUD** (próxima sesión)
-1. Crear hooks para operaciones CRUD
-2. Pantalla Home: mostrar registros con cronología
-3. Pantalla Create: formulario para crear registros
-4. Pantalla Detail: ver y editar registro
-5. Integración completa con BD SQLite
+**PHASE 2: Registros & Cronología CRUD** (en progreso)
+- ✅ 2.1 Hooks personalizados & CRUD Operations
+- ✅ 2.2 Pantalla Home con cronología
+- ✅ 2.3 CRUD para hábitos
+- ⏳ 2.4 Búsqueda y filtros avanzados
+- ⏳ 2.5 Dashboard de estadísticas
 
-**FASE 3: Funcionalidades Avanzadas** (después)
-1. Búsqueda y filtros
-2. Estadísticas y análisis
-3. Hábitos y seguimiento diario
-4. Configuración y temas
-5. Exportación de datos
+**PHASE 3: Funcionalidades Avanzadas**
+1. Pantalla Settings & Configuración
+2. Exportación e importación de datos
+3. Temas oscuro/claro
+4. Notificaciones locales
+5. Sincronización en la nube (opcional)
+
+**PHASE 4: Optimización & Release**
+1. Performance optimization
+2. Testing completo (React Native)
+3. Build para iOS y Android
+4. Deployment con EAS
 
 ---
 
