@@ -8,3 +8,4 @@ export { useCategories } from './useCategories';
 export { useSearch } from './useSearch';
 export { useStats } from './useStats';
 export { useSettings } from './useSettings';
+export { useTheme } from './useTheme';
