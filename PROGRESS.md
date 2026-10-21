@@ -143,11 +143,23 @@
 
 ---
 
-### 1.7 ⏳ Seed Categorías (PENDIENTE)
-**Tasks:**
-- [ ] Implementar 6 categorías predeterminadas
-- [ ] Query CRUD para categorías
-- [ ] Tests unitarios
+### 1.7 ✅ Seed Categorías (COMPLETO)
+**Commit:** `39ea2b1`
+
+- [x] 6 categorías predeterminadas (Personal, Laboral, Familiar, Hogar, Ocio, Gastos)
+- [x] Funciones CRUD completas para categorías
+- [x] Seed automático al inicializar BD
+- [x] 14 tests nuevos (100% pasando)
+
+**Funciones CRUD:**
+- createCategory, getCategoryById, getCategories
+- getCategoriesByName, updateCategory, deleteCategory
+- countCategories, categoryExists
+
+**Servicio CategorySeedService:**
+- seedDefaultCategories: Crea categorías faltantes
+- loadDefaultCategories: Carga todas como modelos
+- verifyDefaultCategories: Verifica integridad
 
 ---
 
@@ -169,17 +181,26 @@
 
 ## 📊 Test Coverage
 
-**Total Tests:** 97 tests (100% passing)
+**Total Tests:** 111 tests (100% passing)
 - Database schema tests: 6
 - Database types tests: 16
+- Database categories CRUD tests: 8
 - Task model tests: 8
 - Category model tests: 6
 - Event model tests: 8
 - Habit model tests: 8
+- CategorySeedService tests: 6
 - Validators tests: 20
 - Color utilities tests: 8
 - Services tests: 2
 - Component tests: 4 (React Native - pending)
+
+**Coverage by Layer:**
+- Database layer: 30 tests
+- Model layer: 30 tests
+- Service layer: 8 tests
+- Utility layer: 28 tests
+- Component layer: 4 tests (pending)
 
 ## 📊 Resumen del Progreso
 
@@ -191,10 +212,10 @@
 | 1.4  | ✅        | 6/6   | DONE   |
 | 1.5  | ✅        | 4/4   | DONE   |
 | 1.6  | ✅        | 5/5   | DONE   |
-| 1.7  | ⏳ 0%     | 3     | READY  |
+| 1.7  | ✅        | 3/3   | DONE   |
 | 1.8  | ✅        | 2/2   | DONE   |
 
-**Total Fase 1:** 7/8 subfases completadas (87.5%)
+**Total Fase 1:** 8/8 subfases completadas (100%)
 
 ---
 
