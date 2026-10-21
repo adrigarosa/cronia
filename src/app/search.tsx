@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, FlatList, SafeAreaView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ScrollView, FlatList, Pressable } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTasks, useCategories, useSearch } from '../hooks';
 import { RecordItem } from '../components/RecordItem';
@@ -165,7 +166,7 @@ export default function SearchScreen() {
 
       {filteredTasks.length === 0 ? (
         <EmptyState
-          icon="empty"
+          icon="inbox"
           title={query ? 'Sin resultados' : 'Sin registros'}
           description={
             query

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTasks } from '../../hooks';
 import { RecordItem } from '../../components/RecordItem';
@@ -68,7 +69,7 @@ export default function HomeScreen() {
 
       {tasks.length === 0 ? (
         <EmptyState
-          icon="empty"
+          icon="inbox"
           title="Sin registros"
           description="Crea tu primer registro para comenzar a organizar."
         />
