@@ -4,13 +4,33 @@ Una aplicación React Native construida con Expo para organizar y hacer seguimie
 
 ## 🎯 Características Principales
 
-- **Tasks/Tareas**: Crear, editar y marcar tareas como completadas
+### Gestión de Registros ✅
+- **Tasks/Tareas**: Crear, editar, marcar como completadas, establecer vencimientos
 - **Notes/Notas**: Capturar notas con clasificaciones (importante, anécdota, recordatorio, reflexión)
-- **Events/Eventos**: Gestionar citas y eventos con duración
-- **Habits/Hábitos**: Seguimiento diario de hábitos con estadísticas
-- **Categories/Categorías**: 6 categorías predeterminadas (Personal, Laboral, Familiar, Hogar, Ocio, Gastos)
-- **Offline-First**: Todo funciona sin conexión a internet
-- **SQLite Local**: Persistencia segura en el dispositivo
+- **Events/Eventos**: Gestionar citas y eventos con fecha, hora y ubicación
+- **Habits/Hábitos**: Seguimiento diario de hábitos con estadísticas mensuales
+
+### Búsqueda y Filtros ✅
+- Búsqueda por texto (case-insensitive)
+- Filtrar por estado (Pendiente, En Progreso, Completado)
+- Filtrar por categoría
+- Filtrar por rango de fechas
+- Combinar múltiples filtros
+
+### Estadísticas y Analytics ✅
+- Dashboard con métricas principales
+- Tasa de completitud
+- Distribución por estado con gráficos
+- Tareas vencidas
+- Promedio de días para completar
+- Estadísticas por categoría
+- Selector de período (Día, Semana, Mes, Año)
+
+### Extras ✅
+- **Categories/Categorías**: 6 categorías predeterminadas
+- **Offline-First**: Todo funciona sin conexión
+- **SQLite Local**: Persistencia segura
+- **Timeline**: Cronología intuitiva con pull-to-refresh
 
 ## 🚀 Inicio Rápido
 
@@ -179,27 +199,37 @@ Ver [src/constants/](./src/constants/) para configuración completa.
 
 ## 🚧 Roadmap
 
-### Phase 1 ✅ COMPLETADA
-- [x] Setup inicial y navegación
-- [x] Sistema de diseño
-- [x] Componentes base
-- [x] SQLite setup
-- [x] Modelos de datos
-- [x] Seed de categorías
-- [x] Tests unitarios
+### Phase 1: FUNDAMENTOS ✅ COMPLETADA (111 tests)
+- [x] Setup inicial y navegación Expo Router
+- [x] Sistema de diseño completo
+- [x] 6 Componentes base reutilizables
+- [x] SQLite setup con 8 tablas
+- [x] 5 Modelos de datos con lógica de negocio
+- [x] Seed de 6 categorías predeterminadas
+- [x] 111 Tests unitarios
 
-### Phase 2 (Próxima)
-- [ ] Pantalla Home con cronología
-- [ ] Pantalla Create con formularios
-- [ ] Pantalla Detail para editar
-- [ ] Integración completa CRUD
-- [ ] Búsqueda y filtros
+### Phase 2: REGISTROS & CRUD ✅ COMPLETADA (201 tests)
+- [x] Pantalla Home con cronología
+- [x] Pantalla Create con formularios
+- [x] Pantalla Detail para ver/editar
+- [x] Integración completa CRUD
+- [x] Búsqueda y filtros avanzados
+- [x] Stats Dashboard con analytics
+- [x] 90 Tests nuevos
 
-### Phase 3
-- [ ] Estadísticas y análisis
-- [ ] Seguimiento de hábitos
-- [ ] Configuración y temas
-- [ ] Exportación de datos
+### Phase 3: FUNCIONALIDADES AVANZADAS (Próxima)
+- [ ] Pantalla Settings
+- [ ] Configuración de preferencias
+- [ ] Temas oscuro/claro
+- [ ] Exportación de datos (JSON, CSV)
+- [ ] Importación de registros
+
+### Phase 4: OPTIMIZACIÓN & RELEASE
+- [ ] Performance optimization
+- [ ] Testing completo React Native
+- [ ] Build para iOS y Android
+- [ ] Deployment con EAS
+- [ ] Notificaciones locales
 
 ## 🐛 Troubleshooting
 
