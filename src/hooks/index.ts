@@ -5,3 +5,4 @@
 export { useTasks } from './useTasks';
 export { useNotes } from './useNotes';
 export { useCategories } from './useCategories';
+export { useSearch } from './useSearch';
