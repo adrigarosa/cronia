@@ -104,4 +104,43 @@ describe('CRUD against real SQLite', () => {
     await h.deleteHabit('h1');
     expect((await load()).map((i) => i.kind).sort()).toEqual(['note', 'task']);
   });
+
+  it('record categories: assign, replace, count and ignore deleted records', async () => {
+    const t = await import('./tasks');
+    const rc = await import('./recordCategories');
+    await t.createTask('t1', 'Uno');
+    await t.createTask('t2', 'Dos');
+    await rc.setRecordCategories('t1', ['personal', 'work']);
+    await rc.setRecordCategories('t2', ['work']);
+    expect((await rc.getRecordCategoryMap())['t1'].sort()).toEqual(['personal', 'work']);
+    expect((await rc.countRecordsByCategory())['work']).toBe(2);
+
+    await rc.setRecordCategories('t1', ['home']);
+    expect((await rc.getRecordCategoryMap())['t1']).toEqual(['home']);
+
+    await t.deleteTask('t2');
+    expect((await rc.countRecordsByCategory())['work']).toBeUndefined();
+  });
+
+  it('categories can be archived and restored without touching records', async () => {
+    const c = await import('./categories');
+    await c.setCategoryArchived('home', true);
+    expect((await c.getCategoryById('home'))?.archived).toBe(1);
+    await c.setCategoryArchived('home', false);
+    expect((await c.getCategoryById('home'))?.archived).toBe(0);
+  });
+
+  it('habits: planned days are stored and day status is upserted', async () => {
+    const h = await import('./habits');
+    await h.createHabit('h1', 'Leer', Date.now(), true, '1111100');
+    expect((await h.getHabit('h1'))?.days).toBe('1111100');
+    await h.updateHabit('h1', { days: '0000011' });
+    expect((await h.getHabit('h1'))?.days).toBe('0000011');
+
+    await h.setHabitDayStatus('a', 'h1', '2026-10-21', 'completed');
+    await h.setHabitDayStatus('b', 'h1', '2026-10-21', 'not_completed');
+    const logs = await h.getAllHabitLogs();
+    expect(logs).toHaveLength(1);
+    expect(logs[0].status).toBe('not_completed');
+  });
 });

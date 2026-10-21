@@ -12,7 +12,8 @@ export async function createHabit(
   id: string,
   name: string,
   startDate: number = Date.now(),
-  active: boolean = true
+  active: boolean = true,
+  days: string = '1111111'
 ): Promise<Habit> {
   const now = Date.now();
 
@@ -22,8 +23,8 @@ export async function createHabit(
       params: [id, 'habit', now, now, 0],
     },
     {
-      sql: 'INSERT INTO habits (id, name, start_date, active) VALUES (?, ?, ?, ?)',
-      params: [id, name, startDate, active ? 1 : 0],
+      sql: 'INSERT INTO habits (id, name, start_date, active, days) VALUES (?, ?, ?, ?, ?)',
+      params: [id, name, startDate, active ? 1 : 0, days],
     },
   ]);
 
@@ -33,6 +34,7 @@ export async function createHabit(
     name,
     start_date: startDate,
     active,
+    days,
     created_at: now,
     updated_at: now,
     deleted: false,
@@ -45,7 +47,7 @@ export async function createHabit(
 export async function getHabit(id: string): Promise<Habit | null> {
   return queryOne<Habit>(
     `SELECT r.id, r.type, r.created_at, r.updated_at, r.deleted,
-            h.name, h.start_date, h.active
+            h.name, h.start_date, h.active, h.days
      FROM records r
      JOIN habits h ON r.id = h.id
      WHERE r.id = ? AND r.deleted = 0`,
@@ -59,7 +61,7 @@ export async function getHabit(id: string): Promise<Habit | null> {
 export async function getHabits(): Promise<Habit[]> {
   return query<Habit>(
     `SELECT r.id, r.type, r.created_at, r.updated_at, r.deleted,
-            h.name, h.start_date, h.active
+            h.name, h.start_date, h.active, h.days
      FROM records r
      JOIN habits h ON r.id = h.id
      WHERE r.deleted = 0
@@ -73,7 +75,7 @@ export async function getHabits(): Promise<Habit[]> {
 export async function getActiveHabits(): Promise<Habit[]> {
   return query<Habit>(
     `SELECT r.id, r.type, r.created_at, r.updated_at, r.deleted,
-            h.name, h.start_date, h.active
+            h.name, h.start_date, h.active, h.days
      FROM records r
      JOIN habits h ON r.id = h.id
      WHERE h.active = 1 AND r.deleted = 0
@@ -99,6 +101,10 @@ export async function updateHabit(
   if (updates.active !== undefined) {
     fields.push('active = ?');
     params.push(updates.active ? 1 : 0);
+  }
+  if (updates.days !== undefined) {
+    fields.push('days = ?');
+    params.push(updates.days);
   }
 
   if (fields.length === 0) {
@@ -190,4 +196,29 @@ export async function getHabitCompletionStats(habitId: string, year: number, mon
     stats[log.date] = log.status;
   }
   return stats;
+}
+
+/**
+ * Fijar el estado de un habito en una fecha (crea o actualiza el registro del dia)
+ */
+export async function setHabitDayStatus(
+  id: string,
+  habitId: string,
+  date: string,
+  status: HabitStatus
+): Promise<void> {
+  const now = Date.now();
+  await execute(
+    `INSERT INTO habit_logs (id, habit_id, date, status, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(habit_id, date) DO UPDATE SET status = excluded.status, updated_at = excluded.updated_at`,
+    [id, habitId, date, status, now, now]
+  );
+}
+
+/**
+ * Obtener todos los registros de cumplimiento
+ */
+export async function getAllHabitLogs(): Promise<HabitLog[]> {
+  return query<HabitLog>('SELECT * FROM habit_logs');
 }

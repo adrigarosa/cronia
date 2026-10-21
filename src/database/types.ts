@@ -69,6 +69,7 @@ export interface Habit extends Record {
   name: string;
   start_date: number;
   active: boolean;
+  days: string; // 7 chars L..D, "1" = day planned
 }
 
 /**
@@ -91,6 +92,7 @@ export interface Category {
   id: string;
   name: string;
   created_at: number;
+  archived: number; // 0 | 1
 }
 
 /**

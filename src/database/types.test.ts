@@ -144,6 +144,7 @@ describe('Database Types', () => {
         name: 'Exercise',
         start_date: now,
         active: true,
+        days: '1111111',
         created_at: now,
         updated_at: now,
         deleted: false,
@@ -194,6 +195,7 @@ describe('Database Types', () => {
         id: 'work',
         name: 'Laboral',
         created_at: Date.now(),
+        archived: 0,
       };
 
       expect(category.id).toBeDefined();

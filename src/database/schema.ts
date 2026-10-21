@@ -13,7 +13,8 @@ export const CREATE_TABLES_SQL = `
   CREATE TABLE IF NOT EXISTS categories (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
-    created_at INTEGER NOT NULL
+    created_at INTEGER NOT NULL,
+    archived INTEGER NOT NULL DEFAULT 0
   );
 
   -- Tabla de registros base (unificada)
@@ -62,6 +63,7 @@ export const CREATE_TABLES_SQL = `
     name TEXT NOT NULL,
     start_date INTEGER NOT NULL,
     active INTEGER NOT NULL DEFAULT 1,
+    days TEXT NOT NULL DEFAULT '1111111',
     FOREIGN KEY(id) REFERENCES records(id) ON DELETE CASCADE
   );
 

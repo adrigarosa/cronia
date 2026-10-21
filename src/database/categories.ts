@@ -17,7 +17,7 @@ export async function createCategory(
     'INSERT INTO categories (id, name, created_at) VALUES (?, ?, ?)',
     [id, name, now]
   );
-  return { id, name, created_at: now };
+  return { id, name, created_at: now, archived: 0 };
 }
 
 /**
@@ -92,4 +92,11 @@ export async function categoryExists(id: string): Promise<boolean> {
     [id]
   );
   return !!result;
+}
+
+/**
+ * Archivar o restaurar una categoria (no borra los registros que la usan)
+ */
+export async function setCategoryArchived(id: string, archived: boolean): Promise<void> {
+  await execute('UPDATE categories SET archived = ? WHERE id = ?', [archived ? 1 : 0, id]);
 }

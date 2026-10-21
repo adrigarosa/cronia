@@ -23,12 +23,27 @@ export async function getDatabase(): Promise<SQLite.SQLiteDatabase> {
  * Inicializar la base de datos
  * Crea las tablas y siembra datos predeterminados
  */
+/**
+ * Migraciones para bases de datos creadas con versiones anteriores del esquema
+ */
+async function runMigrations(database: SQLite.SQLiteDatabase): Promise<void> {
+  const addColumnIfMissing = async (table: string, column: string, definition: string) => {
+    const columns = await database.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
+    if (!columns.some((c) => c.name === column)) {
+      await database.execAsync(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+    }
+  };
+  await addColumnIfMissing('categories', 'archived', 'INTEGER NOT NULL DEFAULT 0');
+  await addColumnIfMissing('habits', 'days', "TEXT NOT NULL DEFAULT '1111111'");
+}
+
 export async function initializeDatabase(): Promise<void> {
   try {
     const database = await getDatabase();
 
     // Ejecutar SQL de creación de tablas
     await database.execAsync(CREATE_TABLES_SQL);
+    await runMigrations(database);
 
     // Insertar categorías predeterminadas
     await database.execAsync(SEED_CATEGORIES_SQL);
@@ -121,7 +136,7 @@ export async function createCategory(id: string, name: string): Promise<Category
     'INSERT INTO categories (id, name, created_at) VALUES (?, ?, ?)',
     [id, name, now]
   );
-  return { id, name, created_at: now };
+  return { id, name, created_at: now, archived: 0 };
 }
 
 /**
