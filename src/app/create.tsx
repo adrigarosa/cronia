@@ -1,403 +1,698 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Alert, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useTasks, useNotes, useEvents, useHabits } from '../hooks';
-import { Button } from '../components/Button';
-import { NoteClassification } from '../database/types';
-import { parseDate, parseTime } from '../utils/formParsers';
-import { colors } from '../constants/colors';
-import { spacing } from '../constants/spacing';
+import { router } from 'expo-router';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import {
+  createTask,
+  createNote,
+  createEvent,
+  createHabit,
+  getCategories,
+  createCategory,
+  setRecordCategories,
+} from '../database';
+import type { Category } from '../database/types';
+import { fonts, palette, RecordKind } from '../theme/tokens';
+import { startOfDay } from '../domain/records';
+import { generateId } from '../utils/id';
+import {
+  CloseIcon,
+  TaskTypeIcon,
+  NoteTypeIcon,
+  EventTypeIcon,
+  HabitIcon,
+  CheckIcon,
+  PlusIcon,
+} from '../components/icons';
 
-type RecordType = 'task' | 'note' | 'event' | 'habit' | null;
-
-const RECORD_TYPES = [
-  { id: 'task', label: 'Tarea', icon: 'check-circle', description: 'Crear una nueva tarea' },
-  { id: 'note', label: 'Nota', icon: 'sticky-note', description: 'Guardar una nota breve' },
-  { id: 'event', label: 'Evento', icon: 'calendar', description: 'Agendar un evento' },
-  { id: 'habit', label: 'Hábito', icon: 'repeat', description: 'Registrar un hábito' },
-] as const;
-
-const CLASSIFICATIONS: { id: NoteClassification; label: string }[] = [
-  { id: 'reminder', label: 'Recordatorio' },
-  { id: 'important', label: 'Importante' },
-  { id: 'anecdote', label: 'Anécdota' },
-  { id: 'reflection', label: 'Reflexión' },
+const TYPE_DEFS: { id: RecordKind; label: string }[] = [
+  { id: 'T', label: 'Tarea' },
+  { id: 'N', label: 'Nota' },
+  { id: 'E', label: 'Cita' },
+  { id: 'H', label: 'Hábito' },
 ];
 
-const TITLES = {
-  task: 'Crear Tarea',
-  note: 'Crear Nota',
-  event: 'Crear Evento',
-  habit: 'Crear Hábito',
-} as const;
+const SAVE_LABEL: Record<RecordKind, string> = {
+  T: 'Guardar tarea',
+  N: 'Guardar nota',
+  E: 'Guardar cita',
+  H: 'Crear hábito',
+};
+
+const TASK_STATES = ['Sin iniciar', 'En progreso'];
+const EVENT_STATES = ['Próximamente', 'En curso', 'Realizado', 'Cancelado'];
+const NOTE_CLASSES = ['Idea', 'Reflexión', 'Nota'];
+const DAY_LETTERS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+const DAY_LONG = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
+function pad(n: number): string {
+  return String(n).padStart(2, '0');
+}
+
+function formatDateShort(ts: number): string {
+  const d = new Date(ts);
+  return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear();
+}
+
+function timeToVal(time: string | null): Date {
+  const d = new Date();
+  if (time) {
+    const [h, m] = time.split(':').map(Number);
+    d.setHours(h, m, 0, 0);
+  } else {
+    d.setHours(9, 0, 0, 0);
+  }
+  return d;
+}
+
+function valToTime(d: Date): string {
+  return pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+
+function daysToString(days: boolean[]): string {
+  return days.map((on) => (on ? '1' : '0')).join('');
+}
+
+type PickerState = { field: string; mode: 'date' | 'time'; value: Date } | null;
 
 export default function CreateScreen() {
-  const router = useRouter();
-  const { createNewTask } = useTasks();
-  const { createNewNote } = useNotes();
-  const { createNewEvent } = useEvents();
-  const { createNewHabit } = useHabits();
+  const [type, setType] = useState<RecordKind>('T');
+  const [saving, setSaving] = useState(false);
+  const [picker, setPicker] = useState<PickerState>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [cats, setCats] = useState<string[]>([]);
+  const [newCat, setNewCat] = useState<string | null>(null);
 
-  const [selectedType, setSelectedType] = useState<RecordType>(null);
-  const [loading, setLoading] = useState(false);
+  const [taskDesc, setTaskDesc] = useState('');
+  const [taskDue, setTaskDue] = useState<number | null>(null);
+  const [taskSt, setTaskSt] = useState(0);
 
-  const [text, setText] = useState('');
-  const [date, setDate] = useState('');
-  const [classification, setClassification] = useState<NoteClassification>('reminder');
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
-  const [location, setLocation] = useState('');
+  const [noteContent, setNoteContent] = useState('');
+  const [noteCls, setNoteCls] = useState(0);
 
-  const resetForm = () => {
-    setText('');
-    setDate('');
-    setClassification('reminder');
-    setStartTime('');
-    setEndTime('');
-    setLocation('');
-    setSelectedType(null);
-  };
+  const [evDesc, setEvDesc] = useState('');
+  const [evStartDay, setEvStartDay] = useState<number>(() => startOfDay(Date.now()));
+  const [evStartTime, setEvStartTime] = useState<string | null>(null);
+  const [evEndDay, setEvEndDay] = useState<number>(() => startOfDay(Date.now()));
+  const [evEndTime, setEvEndTime] = useState<string | null>(null);
+  const [evLoc, setEvLoc] = useState('');
+  const [evSt, setEvSt] = useState(0);
+
+  const [hName, setHName] = useState('');
+  const [hStart, setHStart] = useState<number>(() => startOfDay(Date.now()));
+  const [hDays, setHDays] = useState<boolean[]>([true, true, true, true, true, false, false]);
+  const [hActive, setHActive] = useState(true);
+
+  useEffect(() => {
+    getCategories()
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      .then((all) => setCategories(all.filter((cat) => !cat.archived)))
+      .catch(() => {});
+  }, []);
+
+  const c = {
+    T: { tint: '#EAF2F8', dark: '#1F618D', base: '#2980B9' },
+    N: { tint: '#E8F6F3', dark: '#0E6655', base: '#16A085' },
+    E: { tint: '#F4ECF7', dark: '#7D3C98', base: '#9B59B6' },
+    H: { tint: '#FDF2E9', dark: '#A04000', base: '#E67E22' },
+  }[type];
 
   const fail = (message: string): null => {
     Alert.alert('Revisa el formulario', message);
     return null;
   };
 
-  const validate = (): (() => Promise<void>) | null => {
-    const value = text.trim();
-
-    if (selectedType === 'task') {
-      if (!value) return fail('Escribe una descripción.');
-      let due: number | undefined;
-      if (date.trim()) {
-        const parsed = parseDate(date);
-        if (parsed === null) return fail('La fecha debe tener formato DD/MM/AAAA y ser válida.');
-        due = parsed;
-      }
-      return () => createNewTask(value, due);
+  const buildSave = (): (() => Promise<void>) | null => {
+    if (type === 'T') {
+      const desc = taskDesc.trim();
+      if (!desc) return fail('Escribe una descripción.');
+      return async () => {
+        const t = await createTask(generateId(), desc, taskDue ?? undefined, taskSt === 1 ? 'in_progress' : 'pending');
+        await setRecordCategories(t.id, cats);
+      };
     }
-
-    if (selectedType === 'note') {
-      if (!value) return fail('Escribe el contenido de la nota.');
-      return () => createNewNote(value, classification);
+    if (type === 'N') {
+      const content = noteContent.trim();
+      if (!content) return fail('Escribe el contenido de la nota.');
+      const cls = (['important', 'reflection', 'reminder'] as const)[noteCls];
+      return async () => {
+        const n = await createNote(generateId(), content, cls);
+        await setRecordCategories(n.id, cats);
+      };
     }
-
-    if (selectedType === 'event') {
-      if (!value) return fail('Escribe una descripción.');
-      const day = parseDate(date);
-      if (day === null) return fail('La fecha debe tener formato DD/MM/AAAA y ser válida.');
-      const start = parseTime(startTime);
-      const end = parseTime(endTime);
-      if (!start || !end) return fail('Las horas deben tener formato HH:mm (por ejemplo 09:30).');
-      if (end <= start) return fail('La hora de fin debe ser posterior a la de inicio.');
-      const place = location.trim() || undefined;
-      return () =>
-        createNewEvent({ description: value, date: day, startTime: start, endTime: end, location: place });
+    if (type === 'E') {
+      const desc = evDesc.trim();
+      if (!desc) return fail('Escribe una descripción.');
+      if (!evStartTime) return fail('Indica la hora de inicio.');
+      if (!evEndTime) return fail('Indica la hora de fin.');
+      if (evEndDay < evStartDay) return fail('El fin no puede ser anterior al inicio.');
+      const status = (['upcoming', 'in_progress', 'completed', 'cancelled'] as const)[evSt];
+      return async () => {
+        const e = await createEvent(
+          generateId(),
+          desc,
+          evStartDay,
+          evStartTime,
+          evEndDay,
+          evEndTime,
+          status,
+          evLoc.trim() || undefined
+        );
+        await setRecordCategories(e.id, cats);
+      };
     }
-
-    if (selectedType === 'habit') {
-      if (!value) return fail('Escribe el nombre del hábito.');
-      let start = Date.now();
-      if (date.trim()) {
-        const parsed = parseDate(date);
-        if (parsed === null) return fail('La fecha debe tener formato DD/MM/AAAA y ser válida.');
-        start = parsed;
-      }
-      return () => createNewHabit(value, start);
-    }
-
-    return null;
+    const name = hName.trim();
+    if (!name) return fail('Escribe el nombre del hábito.');
+    return async () => {
+      const h = await createHabit(generateId(), name, hStart, hActive, daysToString(hDays));
+      await setRecordCategories(h.id, cats);
+    };
   };
 
-  const handleSubmit = async () => {
-    const action = validate();
+  const handleSave = async () => {
+    const action = buildSave();
     if (!action) return;
-
     try {
-      setLoading(true);
+      setSaving(true);
       await action();
-      resetForm();
       router.navigate('/');
     } catch (err) {
       Alert.alert('Error', (err as Error).message);
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
-  if (!selectedType) {
-    return (
-      <SafeAreaView style={styles.container} edges={['left', 'right']}>
-        <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-          <Text style={styles.mainTitle}>¿Qué deseas crear?</Text>
+  const addCategory = async () => {
+    const name = (newCat ?? '').trim();
+    if (!name) return;
+    try {
+      const created = await createCategory(generateId(), name);
+      setCategories((prev) => [...prev, created]);
+      setCats((prev) => [...prev, created.id]);
+      setNewCat(null);
+    } catch (err) {
+      Alert.alert('Error', (err as Error).message);
+    }
+  };
 
-          {RECORD_TYPES.map((type) => (
-            <Pressable key={type.id} style={styles.typeCard} onPress={() => setSelectedType(type.id)}>
-              <FontAwesome name={type.icon} size={32} color={colors.light.primary} />
-              <View style={styles.typeInfo}>
-                <Text style={styles.typeLabel}>{type.label}</Text>
-                <Text style={styles.typeDescription}>{type.description}</Text>
-              </View>
-              <FontAwesome name="chevron-right" size={20} color={colors.light.textSecondary} />
-            </Pressable>
-          ))}
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
+  const openPicker = (field: string, mode: 'date' | 'time', value: Date) =>
+    setPicker({ field, mode, value });
 
-  const textLabel =
-    selectedType === 'note' ? 'Contenido *' : selectedType === 'habit' ? 'Nombre *' : 'Descripción *';
-  const textPlaceholder =
-    selectedType === 'task'
-      ? '¿Qué necesitas hacer?'
-      : selectedType === 'note'
-        ? 'Escribe tu nota...'
-        : selectedType === 'event'
-          ? '¿Qué vas a hacer?'
-          : '¿Qué hábito quieres seguir?';
-  const dateLabel =
-    selectedType === 'task'
-      ? 'Vencimiento (opcional)'
-      : selectedType === 'event'
-        ? 'Fecha *'
-        : 'Fecha de inicio (opcional, por defecto hoy)';
+  const onPickerChange = (_e: unknown, selected?: Date) => {
+    const current = picker;
+    setPicker(Platform.OS === 'ios' ? current : null);
+    if (!selected || !current) return;
+    if (current.mode === 'date') {
+      const ts = startOfDay(selected.getTime());
+      if (current.field === 'taskDue') setTaskDue(ts);
+      if (current.field === 'evStartDay') {
+        setEvStartDay(ts);
+        if (evEndDay < ts) setEvEndDay(ts);
+      }
+      if (current.field === 'evEndDay') setEvEndDay(ts);
+      if (current.field === 'hStart') setHStart(ts);
+    } else {
+      const time = valToTime(selected);
+      if (current.field === 'evStartTime') setEvStartTime(time);
+      if (current.field === 'evEndTime') setEvEndTime(time);
+    }
+  };
+
+  const seg = (on: boolean) => [
+    styles.seg,
+    on && { backgroundColor: c.tint, borderColor: c.base, borderWidth: 2 },
+    !on && styles.segOff,
+  ];
 
   return (
-    <SafeAreaView style={styles.container} edges={['left', 'right']}>
-      <KeyboardAvoidingView
-        style={styles.content}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+    <SafeAreaView style={styles.screen} edges={['top', 'bottom']}>
+      <View style={styles.header}>
+        <Pressable style={styles.closeBtn} accessibilityLabel="Cerrar sin guardar" onPress={() => router.back()}>
+          <CloseIcon size={22} color={palette.ink} strokeWidth={2.2} />
+        </Pressable>
+        <Text style={styles.headerTitle}>Nuevo registro</Text>
+        <View style={{ width: 48 }} />
+      </View>
+
+      <View style={styles.typesRow}>
+        {TYPE_DEFS.map((t) => {
+          const on = type === t.id;
+          const k = {
+            T: { tint: '#EAF2F8', dark: '#1F618D', base: '#2980B9' },
+            N: { tint: '#E8F6F3', dark: '#0E6655', base: '#16A085' },
+            E: { tint: '#F4ECF7', dark: '#7D3C98', base: '#9B59B6' },
+            H: { tint: '#FDF2E9', dark: '#A04000', base: '#E67E22' },
+          }[t.id];
+          return (
+            <Pressable
+              key={t.id}
+              style={[
+                styles.typeBtn,
+                on && { backgroundColor: k.tint, borderColor: k.base, borderWidth: 2 },
+                !on && styles.typeBtnOff,
+              ]}
+              onPress={() => setType(t.id)}
+            >
+              {t.id === 'T' && <TaskTypeIcon size={22} color={on ? k.dark : palette.ink} />}
+              {t.id === 'N' && <NoteTypeIcon size={22} color={on ? k.dark : palette.ink} />}
+              {t.id === 'E' && <EventTypeIcon size={22} color={on ? k.dark : palette.ink} />}
+              {t.id === 'H' && <HabitIcon size={22} color={on ? k.dark : palette.ink} />}
+              <Text style={[styles.typeLabel, { color: on ? k.dark : palette.ink }]}>{t.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
-          style={styles.content}
-          contentContainerStyle={styles.contentContainer}
+          contentContainerStyle={styles.form}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.header}>
-            <Pressable onPress={() => setSelectedType(null)} hitSlop={8}>
-              <FontAwesome name="arrow-left" size={24} color={colors.light.text} />
-            </Pressable>
-            <Text style={styles.title}>{TITLES[selectedType]}</Text>
-            <View style={{ width: 24 }} />
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.label}>{textLabel}</Text>
-            <TextInput
-              style={[styles.input, selectedType !== 'habit' && styles.multiline]}
-              placeholder={textPlaceholder}
-              value={text}
-              onChangeText={setText}
-              editable={!loading}
-              placeholderTextColor={colors.light.textSecondary}
-              multiline={selectedType !== 'habit'}
-            />
-          </View>
-
-          {selectedType === 'note' && (
-            <View style={styles.section}>
-              <Text style={styles.label}>Clasificación</Text>
-              <View style={styles.chips}>
-                {CLASSIFICATIONS.map((c) => (
-                  <Pressable
-                    key={c.id}
-                    style={[styles.chip, classification === c.id && styles.chipActive]}
-                    onPress={() => setClassification(c.id)}
-                  >
-                    <Text style={[styles.chipText, classification === c.id && styles.chipTextActive]}>
-                      {c.label}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-          )}
-
-          {selectedType !== 'note' && (
-            <View style={styles.section}>
-              <Text style={styles.label}>{dateLabel}</Text>
-              <Text style={styles.hint}>Formato: DD/MM/AAAA</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="01/12/2026"
-                value={date}
-                onChangeText={setDate}
-                editable={!loading}
-                placeholderTextColor={colors.light.textSecondary}
-                keyboardType="numbers-and-punctuation"
-              />
-            </View>
-          )}
-
-          {selectedType === 'event' && (
+          {type === 'T' && (
             <>
-              <View style={styles.row}>
-                <View style={[styles.section, styles.flex]}>
-                  <Text style={styles.label}>Inicio *</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="09:00"
-                    value={startTime}
-                    onChangeText={setStartTime}
-                    editable={!loading}
-                    placeholderTextColor={colors.light.textSecondary}
-                    keyboardType="numbers-and-punctuation"
-                  />
-                </View>
-                <View style={[styles.section, styles.flex]}>
-                  <Text style={styles.label}>Fin *</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="10:00"
-                    value={endTime}
-                    onChangeText={setEndTime}
-                    editable={!loading}
-                    placeholderTextColor={colors.light.textSecondary}
-                    keyboardType="numbers-and-punctuation"
-                  />
-                </View>
-              </View>
-
-              <View style={styles.section}>
-                <Text style={styles.label}>Lugar (opcional)</Text>
+              <Field label="Descripción">
                 <TextInput
                   style={styles.input}
-                  placeholder="Oficina, casa, ..."
-                  value={location}
-                  onChangeText={setLocation}
-                  editable={!loading}
-                  placeholderTextColor={colors.light.textSecondary}
+                  placeholder="¿Qué hay que hacer?"
+                  placeholderTextColor={palette.inkSoft}
+                  value={taskDesc}
+                  onChangeText={setTaskDesc}
                 />
-              </View>
+              </Field>
+              <Field label="Fecha límite" hint="(opcional)">
+                <Pressable style={styles.input} onPress={() => openPicker('taskDue', 'date', new Date(taskDue ?? Date.now()))}>
+                  <Text style={[styles.fieldText, !taskDue && styles.placeholder]}>
+                    {taskDue ? formatDateShort(taskDue) : 'DD/MM/AAAA'}
+                  </Text>
+                </Pressable>
+                {picker?.field === 'taskDue' && (
+                  <DateTimePicker value={picker.value} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={onPickerChange} />
+                )}
+              </Field>
+              <Field label="Estado inicial">
+                <View style={styles.segGrid}>
+                  {TASK_STATES.map((label, i) => (
+                    <Pressable key={label} style={seg(taskSt === i)} onPress={() => setTaskSt(i)}>
+                      <Text style={[styles.segText, taskSt === i && { color: c.dark }]}>{label}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </Field>
             </>
           )}
 
-          <View style={styles.buttonContainer}>
-            <Button label="Guardar" variant="primary" onPress={handleSubmit} disabled={loading} loading={loading} />
-            <Button label="Cancelar" variant="secondary" onPress={resetForm} disabled={loading} />
-          </View>
+          {type === 'N' && (
+            <>
+              <Field label="Contenido">
+                <TextInput
+                  style={[styles.input, styles.textarea]}
+                  placeholder="Escribe una idea, un recuerdo o una reflexión…"
+                  placeholderTextColor={palette.inkSoft}
+                  value={noteContent}
+                  onChangeText={setNoteContent}
+                  multiline
+                />
+              </Field>
+              <Field label="Clasificación">
+                <View style={styles.segGrid}>
+                  {NOTE_CLASSES.map((label, i) => (
+                    <Pressable key={label} style={seg(noteCls === i)} onPress={() => setNoteCls(i)}>
+                      <Text style={[styles.segText, noteCls === i && { color: c.dark }]}>{label}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </Field>
+            </>
+          )}
+
+          {type === 'E' && (
+            <>
+              <Field label="Descripción">
+                <TextInput
+                  style={styles.input}
+                  placeholder="Ej.: Cena con Marta"
+                  placeholderTextColor={palette.inkSoft}
+                  value={evDesc}
+                  onChangeText={setEvDesc}
+                />
+              </Field>
+              <View style={styles.evGrid}>
+                <Field label="Inicio" style={styles.evWide}>
+                  <Pressable style={styles.input} onPress={() => openPicker('evStartDay', 'date', new Date(evStartDay))}>
+                    <Text style={styles.fieldText}>{formatDateShort(evStartDay)}</Text>
+                  </Pressable>
+                  {picker?.field === 'evStartDay' && (
+                    <DateTimePicker value={picker.value} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={onPickerChange} />
+                  )}
+                </Field>
+                <Field label="Hora" style={styles.evNarrow}>
+                  <Pressable style={styles.input} onPress={() => openPicker('evStartTime', 'time', timeToVal(evStartTime))}>
+                    <Text style={[styles.fieldText, !evStartTime && styles.placeholder]}>
+                      {evStartTime ?? 'HH:mm'}
+                    </Text>
+                  </Pressable>
+                  {picker?.field === 'evStartTime' && (
+                    <DateTimePicker value={picker.value} mode="time" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={onPickerChange} />
+                  )}
+                </Field>
+                <Field label="Fin" style={styles.evWide}>
+                  <Pressable style={styles.input} onPress={() => openPicker('evEndDay', 'date', new Date(evEndDay))}>
+                    <Text style={styles.fieldText}>{formatDateShort(evEndDay)}</Text>
+                  </Pressable>
+                  {picker?.field === 'evEndDay' && (
+                    <DateTimePicker value={picker.value} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={onPickerChange} />
+                  )}
+                </Field>
+                <Field label="Hora" style={styles.evNarrow}>
+                  <Pressable style={styles.input} onPress={() => openPicker('evEndTime', 'time', timeToVal(evEndTime))}>
+                    <Text style={[styles.fieldText, !evEndTime && styles.placeholder]}>
+                      {evEndTime ?? 'HH:mm'}
+                    </Text>
+                  </Pressable>
+                  {picker?.field === 'evEndTime' && (
+                    <DateTimePicker value={picker.value} mode="time" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={onPickerChange} />
+                  )}
+                </Field>
+              </View>
+              <Text style={styles.hint}>El fin no puede ser anterior al inicio.</Text>
+              <Field label="Lugar" hint="(opcional, texto libre)">
+                <TextInput
+                  style={styles.input}
+                  placeholder="Oficina, Casa, Google Meet…"
+                  placeholderTextColor={palette.inkSoft}
+                  value={evLoc}
+                  onChangeText={setEvLoc}
+                />
+              </Field>
+              <Field label="Estado">
+                <View style={styles.segGrid}>
+                  {EVENT_STATES.map((label, i) => (
+                    <Pressable key={label} style={seg(evSt === i)} onPress={() => setEvSt(i)}>
+                      <Text style={[styles.segText, evSt === i && { color: c.dark }]}>{label}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+                <Text style={styles.hint}>
+                  «Próximamente» y «En curso» se calculan con la fecha y la hora. «Realizado» y «Cancelado» los indicas tú.
+                </Text>
+              </Field>
+            </>
+          )}
+
+          {type === 'H' && (
+            <>
+              <Field label="Nombre del hábito">
+                <TextInput
+                  style={styles.input}
+                  placeholder="Ej.: Caminar 30 minutos"
+                  placeholderTextColor={palette.inkSoft}
+                  value={hName}
+                  onChangeText={setHName}
+                />
+              </Field>
+              <Field label="Fecha de inicio">
+                <Pressable style={styles.input} onPress={() => openPicker('hStart', 'date', new Date(hStart))}>
+                  <Text style={styles.fieldText}>{formatDateShort(hStart)}</Text>
+                </Pressable>
+                {picker?.field === 'hStart' && (
+                  <DateTimePicker value={picker.value} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={onPickerChange} />
+                )}
+              </Field>
+              <Field label="Días previstos">
+                <View style={styles.daysRow}>
+                  {DAY_LETTERS.map((letter, i) => (
+                    <Pressable
+                      key={letter}
+                      style={[styles.dayBtn, hDays[i] && styles.dayBtnOn]}
+                      accessibilityLabel={DAY_LONG[i]}
+                      onPress={() => setHDays((prev) => prev.map((v, j) => (j === i ? !v : v)))}
+                    >
+                      <Text style={[styles.dayText, hDays[i] && styles.dayTextOn]}>{letter}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+                <Text style={styles.hint}>
+                  Si un día previsto termina sin registro, pasa a «No realizado». Los días no previstos no cuentan.
+                </Text>
+              </Field>
+              <Pressable style={styles.switchRow} onPress={() => setHActive(!hActive)}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.switchTitle}>Seguimiento activo</Text>
+                  <Text style={styles.switchSub}>Desactívalo para pausar sin perder el historial</Text>
+                </View>
+                <View style={[styles.switchTrack, { backgroundColor: hActive ? c.dark : palette.switchOff }]}>
+                  <View style={[styles.switchKnob, hActive && { alignSelf: 'flex-end' }]} />
+                </View>
+              </Pressable>
+            </>
+          )}
+
+          <Field label="Categorías" hint="(una o varias)">
+            <View style={styles.catsWrap}>
+              {categories.map((cat) => {
+                const on = cats.includes(cat.id);
+                return (
+                  <Pressable
+                    key={cat.id}
+                    style={[styles.catChip, on && styles.catChipOn]}
+                    onPress={() => setCats((prev) => (on ? prev.filter((x) => x !== cat.id) : [...prev, cat.id]))}
+                  >
+                    {on && <CheckIcon size={14} color={palette.white} strokeWidth={3} />}
+                    <Text style={[styles.catText, on && { color: palette.white }]}>{cat.name}</Text>
+                  </Pressable>
+                );
+              })}
+              {newCat === null ? (
+                <Pressable style={styles.newCatBtn} onPress={() => setNewCat('')}>
+                  <PlusIcon size={14} color={palette.ink} strokeWidth={2.6} />
+                  <Text style={styles.newCatText}>Nueva</Text>
+                </Pressable>
+              ) : (
+                <View style={styles.newCatRow}>
+                  <TextInput
+                    style={styles.newCatInput}
+                    placeholder="Nombre"
+                    placeholderTextColor={palette.inkSoft}
+                    value={newCat}
+                    onChangeText={setNewCat}
+                    autoFocus
+                    onSubmitEditing={addCategory}
+                  />
+                  <Pressable style={styles.newCatAdd} onPress={addCategory}>
+                    <Text style={styles.newCatAddText}>Añadir</Text>
+                  </Pressable>
+                </View>
+              )}
+            </View>
+          </Field>
         </ScrollView>
+
+        <View style={styles.saveBar}>
+          <Pressable
+            style={[styles.saveBtn, { backgroundColor: c.dark }, saving && { opacity: 0.6 }]}
+            disabled={saving}
+            onPress={handleSave}
+          >
+            <Text style={styles.saveText}>{saving ? 'Guardando…' : SAVE_LABEL[type]}</Text>
+          </Pressable>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
+function Field({
+  label,
+  hint,
+  style,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  style?: object;
+  children: React.ReactNode;
+}) {
+  return (
+    <View style={[styles.field, style]}>
+      <Text style={styles.label}>
+        {label} {hint ? <Text style={styles.labelHint}>{hint}</Text> : null}
+      </Text>
+      {children}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.light.background,
-  },
-  content: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: spacing.lg,
-  },
+  screen: { flex: 1, backgroundColor: palette.bg },
   header: {
+    padding: 14,
+    paddingLeft: 8,
+    paddingRight: 12,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.xl,
+    justifyContent: 'space-between',
   },
-  mainTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.light.text,
-    marginBottom: spacing.lg,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: colors.light.text,
-  },
-  section: {
-    marginBottom: spacing.lg,
-  },
-  row: {
-    flexDirection: 'row',
-    gap: spacing.md,
-  },
-  flex: {
+  closeBtn: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
+  headerTitle: { fontFamily: fonts.display, fontSize: 19, color: palette.ink },
+  typesRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingBottom: 12 },
+  typeBtn: {
     flex: 1,
+    height: 72,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
   },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.light.text,
-    marginBottom: spacing.sm,
-  },
-  hint: {
-    fontSize: 12,
-    color: colors.light.textSecondary,
-    marginBottom: spacing.xs,
-  },
+  typeBtnOff: { backgroundColor: palette.white, borderColor: palette.borderChip, borderWidth: 1 },
+  typeLabel: { fontSize: 13, fontFamily: fonts.bold },
+  form: { padding: 16, paddingBottom: 120, gap: 18 },
+  field: { gap: 8 },
+  label: { fontSize: 13, fontFamily: fonts.bold, color: palette.ink },
+  labelHint: { fontFamily: fonts.medium, color: palette.inkSoft },
   input: {
+    height: 50,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: colors.light.border,
-    borderRadius: 8,
-    padding: spacing.md,
-    fontSize: 16,
-    color: colors.light.text,
-    backgroundColor: colors.light.card,
+    borderColor: palette.borderInput,
+    backgroundColor: palette.white,
+    paddingHorizontal: 14,
+    fontSize: 15,
+    color: palette.ink,
+    fontFamily: fonts.body,
+    justifyContent: 'center',
   },
-  multiline: {
-    minHeight: 90,
-    textAlignVertical: 'top',
+  textarea: { height: 132, paddingTop: 12, textAlignVertical: 'top', lineHeight: 22 },
+  fieldText: { fontSize: 15, color: palette.ink, fontFamily: fonts.body },
+  placeholder: { color: palette.inkSoft },
+  segGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  seg: {
+    flexGrow: 1,
+    minWidth: '45%',
+    minHeight: 46,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+    backgroundColor: palette.white,
   },
-  chips: {
+  segOff: { borderColor: palette.borderInput, borderWidth: 1 },
+  segText: { fontSize: 14, fontFamily: fonts.semibold, color: palette.ink },
+  hint: { fontSize: 12, color: palette.inkSoft, lineHeight: 17 },
+  evGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  evWide: { flexBasis: '55%', flexGrow: 1 },
+  evNarrow: { flexBasis: '35%', flexGrow: 1 },
+  daysRow: { flexDirection: 'row', gap: 6 },
+  dayBtn: {
+    flex: 1,
+    height: 44,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: palette.borderInput,
+    backgroundColor: palette.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dayBtnOn: { backgroundColor: '#A04000', borderColor: '#A04000' },
+  dayText: { fontSize: 14, fontFamily: fonts.bold, color: palette.ink },
+  dayTextOn: { color: palette.white },
+  switchRow: {
+    minHeight: 56,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: palette.borderInput,
+    backgroundColor: palette.white,
+    padding: 14,
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
+    alignItems: 'center',
+    gap: 12,
   },
-  chip: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
+  switchTitle: { fontSize: 15, fontFamily: fonts.semibold, color: palette.ink },
+  switchSub: { fontSize: 12, color: palette.inkSoft, marginTop: 2 },
+  switchTrack: {
+    width: 52,
+    height: 30,
+    borderRadius: 15,
+    padding: 3,
+    justifyContent: 'center',
+  },
+  switchKnob: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: palette.white,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+  catsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  catChip: {
+    height: 40,
+    paddingHorizontal: 14,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: colors.light.border,
-    backgroundColor: colors.light.card,
-  },
-  chipActive: {
-    backgroundColor: colors.light.primary,
-    borderColor: colors.light.primary,
-  },
-  chipText: {
-    fontSize: 14,
-    color: colors.light.text,
-  },
-  chipTextActive: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-  },
-  typeCard: {
+    borderColor: palette.borderInput,
+    backgroundColor: palette.white,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.light.card,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    borderRadius: 12,
-    borderColor: colors.light.border,
+    gap: 6,
+  },
+  catChipOn: { backgroundColor: palette.ink, borderColor: palette.ink },
+  catText: { fontSize: 13, fontFamily: fonts.semibold, color: palette.ink },
+  newCatBtn: {
+    height: 40,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: palette.dashed,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  newCatText: { fontSize: 13, fontFamily: fonts.semibold, color: palette.ink },
+  newCatRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  newCatInput: {
+    height: 40,
+    paddingHorizontal: 14,
+    borderRadius: 20,
     borderWidth: 1,
-  },
-  typeInfo: {
-    flex: 1,
-    marginHorizontal: spacing.md,
-  },
-  typeLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.light.text,
-    marginBottom: 4,
-  },
-  typeDescription: {
+    borderColor: palette.borderInput,
+    backgroundColor: palette.white,
     fontSize: 14,
-    color: colors.light.textSecondary,
+    color: palette.ink,
+    fontFamily: fonts.body,
+    minWidth: 140,
   },
-  buttonContainer: {
-    marginTop: spacing.xl,
-    gap: spacing.md,
+  newCatAdd: {
+    height: 40,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    backgroundColor: palette.ink,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  newCatAddText: { fontSize: 13, fontFamily: fonts.semibold, color: palette.white },
+  saveBar: {
+    padding: 12,
+    paddingBottom: 20,
+    backgroundColor: palette.bg,
+    borderTopWidth: 1,
+    borderTopColor: palette.border,
+  },
+  saveBtn: { height: 54, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  saveText: { fontSize: 16, fontFamily: fonts.bold, color: palette.white },
 });
