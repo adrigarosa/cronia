@@ -242,9 +242,57 @@
 
 ---
 
+### 2.4 ✅ Search & Filters (COMPLETO)
+**Commit:** `634a4cc`
+
+- [x] Hook useSearch con lógica de filtros
+- [x] Filtrar por texto (búsqueda insensible a mayúsculas)
+- [x] Filtrar por estado (pending, in_progress, completed)
+- [x] Filtrar por categoría
+- [x] Filtrar por rango de fechas
+- [x] Pantalla Search completamente implementada
+- [x] Interfaz intuitiva con toggle de filtros
+- [x] Botón de limpiar filtros
+- [x] Contador de resultados
+- [x] 16 tests nuevos
+
+**Características Search:**
+- Búsqueda en tiempo real (debounced)
+- Filtros combinables
+- Historial de búsquedas (para mejorar)
+- Ordenamiento inteligente de resultados
+- Indicador visual de filtros activos
+
+---
+
+### 2.5 ✅ Stats Dashboard (COMPLETO)
+**Commit:** `c884e71`
+
+- [x] Hook useStats con cálculos de estadísticas
+- [x] Dashboard con múltiples métricas
+- [x] Selector de período (Día, Semana, Mes, Año)
+- [x] Resumen general (Total, Tasa de completitud)
+- [x] Distribución por estado
+- [x] Gráficos de barras de progreso
+- [x] Métricas por categoría
+- [x] Promedio de días para completar
+- [x] Distribución detallada con porcentajes
+- [x] 15 tests nuevos
+
+**Estadísticas Calculadas:**
+- Total de tareas
+- Tasa de completitud (%)
+- Contadores por estado (pending, in_progress, completed)
+- Tareas vencidas
+- Promedio de días para completar
+- Distribución por categoría
+- Porcentajes de distribución
+
+---
+
 ## 📊 Test Coverage
 
-**Total Tests:** 170 tests (100% passing)
+**Total Tests:** 201 tests (100% passing)
 
 **Desglose Detallado:**
 - Database schema tests: 6
@@ -260,6 +308,8 @@
 - useTasks hook tests: 10
 - useCategories hook tests: 7
 - useNotes hook tests: 4
+- useSearch hook tests: 16
+- useStats hook tests: 15
 - CategorySeedService tests: 6
 - DatabaseService tests: 2
 - Validators tests: 20
@@ -269,7 +319,7 @@
 **Coverage by Layer:**
 - Database layer: 54 tests (CRUD operations)
 - Model layer: 30 tests (Business logic)
-- Hooks layer: 21 tests (State management)
+- Hooks layer: 52 tests (State management & utilities)
 - Service layer: 8 tests (Initialization)
 - Utility layer: 28 tests (Helpers)
 - Component layer: 4 tests (pending)
@@ -289,16 +339,16 @@
 | 1.8 | Tests Unitarios | - | - |
 | **Total Phase 1** | **8/8 (100%)** | **111 tests** | **7 commits** |
 
-### PHASE 2: REGISTROS & CRONOLOGÍA CRUD ✅ EN PROGRESO
+### PHASE 2: REGISTROS & CRONOLOGÍA CRUD ✅ COMPLETADA (100%)
 
 | Subfase | Descripcion | Tests | Commits | Status |
 |---------|-----------|-------|---------|--------|
 | 2.1 | Hooks & CRUD Ops | 44 | 1 | ✅ |
 | 2.2 | Home & Create Screen | - | 1 | ✅ |
 | 2.3 | Habits CRUD | 15 | 1 | ✅ |
-| 2.4 | Search & Filters | - | TBD | ⏳ |
-| 2.5 | Stats Dashboard | - | TBD | ⏳ |
-| **Total Phase 2** | **3/5 (60%)** | **170 tests** | **3 commits** |
+| 2.4 | Search & Filters | 16 | 1 | ✅ |
+| 2.5 | Stats Dashboard | 15 | 1 | ✅ |
+| **Total Phase 2** | **5/5 (100%)** | **201 tests** | **5 commits** |
 
 ---
 
