@@ -7,3 +7,4 @@ export { useNotes } from './useNotes';
 export { useCategories } from './useCategories';
 export { useSearch } from './useSearch';
 export { useStats } from './useStats';
+export { useSettings } from './useSettings';
