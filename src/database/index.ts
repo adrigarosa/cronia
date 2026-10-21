@@ -9,3 +9,4 @@ export { createTask, getTask, getTasks, getTasksByStatus, updateTask, completeTa
 export { createCategory, getCategoryById, getCategories, getCategoriesByName, updateCategory, deleteCategory, countCategories, categoryExists } from './categories';
 export { createNote, getNote, getNotes, getNotesByClassification, updateNote, deleteNote, countNotes, searchNotes } from './notes';
 export { createEvent, getEvent, getEvents, getEventsByDateRange, getUpcomingEvents, updateEvent, deleteEvent, countEvents } from './events';
+export { createHabit, getHabit, getHabits, getActiveHabits, updateHabit, deleteHabit, logHabitCompletion, getHabitLogsByDate, getHabitLogs, getHabitCompletionStats } from './habits';
