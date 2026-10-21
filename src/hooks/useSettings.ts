@@ -40,11 +40,6 @@ export function useSettings(): UseSettingsResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Cargar configuración al inicializar
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
   const loadSettings = useCallback(async () => {
     try {
       setLoading(true);
@@ -94,6 +89,11 @@ export function useSettings(): UseSettingsResult {
       throw err;
     }
   }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadSettings();
+  }, [loadSettings]);
 
   return {
     settings,

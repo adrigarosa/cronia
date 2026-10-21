@@ -1,3 +1,4 @@
+import { withUpdates } from '../utils/clone';
 /**
  * Hook personalizado para operaciones CRUD de notas
  */
@@ -20,10 +21,6 @@ export function useNotes(): UseNotesResult {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    refreshNotes();
-  }, []);
 
   const refreshNotes = useCallback(async () => {
     try {
@@ -72,7 +69,7 @@ export function useNotes(): UseNotesResult {
       // TODO: Implementar updateNote en database
       setNotes((prev) =>
         prev.map((note) =>
-          note.id === id ? { ...note, ...updates, updated_at: Date.now() } : note
+          note.id === id ? withUpdates(note, { ...updates, updated_at: Date.now() }) : note
         )
       );
     } catch (err) {
@@ -80,6 +77,11 @@ export function useNotes(): UseNotesResult {
       throw err;
     }
   }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    refreshNotes();
+  }, [refreshNotes]);
 
   return {
     notes,

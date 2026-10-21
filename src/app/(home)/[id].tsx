@@ -18,6 +18,7 @@ export default function DetailScreen() {
   useEffect(() => {
     if (tasks && id) {
       const found = tasks.find((t) => t.id === id);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTask(found || null);
       setLoading(false);
     }

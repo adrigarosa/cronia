@@ -9,7 +9,7 @@ import {
 } from './dataExport';
 
 describe('Data Export Utilities', () => {
-  const mockTasks = [
+  const mockTasks: any[] = [
     {
       id: '1',
       description: 'Task 1',

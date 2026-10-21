@@ -19,10 +19,6 @@ export function useCategories(): UseCategoriesResult {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    refreshCategories();
-  }, []);
-
   const refreshCategories = useCallback(async () => {
     try {
       setLoading(true);
@@ -46,6 +42,11 @@ export function useCategories(): UseCategoriesResult {
     },
     [categories]
   );
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    refreshCategories();
+  }, [refreshCategories]);
 
   return {
     categories,

@@ -8,7 +8,7 @@ import {
   getProductivityInRange,
 } from './analytics';
 
-const mockTasks = [
+const mockTasks: any[] = [
   {
     id: '1',
     description: 'Task 1',

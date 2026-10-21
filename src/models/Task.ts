@@ -10,6 +10,7 @@ export class Task {
   due_date?: number;
   status: TaskStatus;
   completed_at?: number;
+  priority?: 'high' | 'medium' | 'low';
   created_at: number;
   updated_at: number;
   categories: string[]; // IDs de categorías

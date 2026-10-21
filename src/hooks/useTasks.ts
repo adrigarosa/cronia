@@ -1,3 +1,4 @@
+import { withUpdates } from '../utils/clone';
 /**
  * Hook personalizado para operaciones CRUD de tareas
  */
@@ -32,11 +33,6 @@ export function useTasks(): UseTasksResult {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Cargar tareas inicialmente
-  useEffect(() => {
-    refreshTasks();
-  }, []);
 
   const refreshTasks = useCallback(async () => {
     try {
@@ -93,7 +89,7 @@ export function useTasks(): UseTasksResult {
       await completeTask(id);
       setTasks((prev) =>
         prev.map((task) =>
-          task.id === id ? { ...task, status: 'completed' as const, completed_at: now } : task
+          task.id === id ? withUpdates(task, { status: 'completed' as const, completed_at: now }) : task
         )
       );
     } catch (err) {
@@ -121,7 +117,7 @@ export function useTasks(): UseTasksResult {
       await updateTask(id, updates);
       setTasks((prev) =>
         prev.map((task) =>
-          task.id === id ? { ...task, ...updates, updated_at: Date.now() } : task
+          task.id === id ? withUpdates(task, { ...updates, updated_at: Date.now() }) : task
         )
       );
     } catch (err) {
@@ -181,6 +177,11 @@ export function useTasks(): UseTasksResult {
     },
     []
   );
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    refreshTasks();
+  }, [refreshTasks]);
 
   return {
     tasks,
