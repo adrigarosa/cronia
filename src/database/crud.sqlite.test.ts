@@ -85,24 +85,30 @@ describe('CRUD against real SQLite', () => {
     const n = await import('./notes');
     const e = await import('./events');
     const h = await import('./habits');
-    const { buildTimeline } = await import('../utils/timeline');
-    const day = new Date(2026, 9, 21).getTime();
+    const { recordsOnDay, startOfDay } = await import('../domain/records');
+    const day = startOfDay(Date.now());
+    const now = Date.now();
+    const src = async () => ({
+      tasks: await t.getTasks(),
+      notes: await n.getNotes(),
+      events: await e.getEvents(),
+      habits: await h.getHabits(),
+      logs: [],
+      categoryMap: {},
+    });
 
     await t.createTask('t1', 'Tarea', day);
     await n.createNote('n1', 'Nota', 'important');
     await e.createEvent('e1', 'Evento', day, '09:00', day, '10:00', 'upcoming', 'Oficina');
     await h.createHabit('h1', 'Habito', day);
 
-    const load = async () =>
-      buildTimeline(await t.getTasks(), await n.getNotes(), await e.getEvents(), await h.getHabits());
-
-    const items = await load();
-    expect(items.map((i) => i.kind).sort()).toEqual(['event', 'habit', 'note', 'task']);
-    expect(items.find((i) => i.kind === 'event')?.subtitle).toContain('Oficina');
+    const items = recordsOnDay(await src(), day, now);
+    expect(items.map((i) => i.kind).sort()).toEqual(['E', 'H', 'N', 'T']);
+    expect(items.find((i) => i.kind === 'E')?.meta).toContain('Oficina');
 
     await e.deleteEvent('e1');
     await h.deleteHabit('h1');
-    expect((await load()).map((i) => i.kind).sort()).toEqual(['note', 'task']);
+    expect(recordsOnDay(await src(), day, now).map((i) => i.kind).sort()).toEqual(['N', 'T']);
   });
 
   it('record categories: assign, replace, count and ignore deleted records', async () => {

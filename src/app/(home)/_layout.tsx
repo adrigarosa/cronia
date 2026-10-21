@@ -1,6 +1,6 @@
 import React from 'react';
 import { Stack } from 'expo-router';
-import { Colors } from '../../constants/colors';
+import { palette } from '../../theme/tokens';
 
 export default function HomeLayout() {
   return (
@@ -8,11 +8,10 @@ export default function HomeLayout() {
       screenOptions={{
         headerShown: false,
         contentStyle: {
-          backgroundColor: Colors.light.background,
+          backgroundColor: palette.bg,
         },
       }}
     >
-      <Stack.Screen name="index" options={{ title: 'Home' }} />
       <Stack.Screen
         name="[id]"
         options={{

@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, FlatList, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useTasks, useCategories, useSearch } from '../hooks';
-import { RecordItem } from '../components/RecordItem';
-import { EmptyState } from '../components/EmptyState';
-import { LoadingSpinner } from '../components/LoadingSpinner';
-import { Button } from '../components/Button';
-import { colors } from '../constants/colors';
-import { spacing } from '../constants/spacing';
+import { useTasks, useCategories, useSearch } from '../../hooks';
+import { RecordItem } from '../../components/RecordItem';
+import { EmptyState } from '../../components/EmptyState';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
+import { Button } from '../../components/Button';
+import { colors } from '../../constants/colors';
+import { spacing } from '../../constants/spacing';
 
 export default function SearchScreen() {
   const { tasks, loading } = useTasks();

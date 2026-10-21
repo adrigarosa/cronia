@@ -11,4 +11,4 @@ export { useSettings } from './useSettings';
 export { useTheme } from './useTheme';
 export { useEvents } from './useEvents';
 export { useHabits } from './useHabits';
-export { useTimeline } from './useTimeline';
+export { useRecords } from './useRecords';

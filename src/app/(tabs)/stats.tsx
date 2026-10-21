@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTasks, useStats } from '../hooks';
-import { LoadingSpinner } from '../components/LoadingSpinner';
-import { Card } from '../components/Card';
-import { colors } from '../constants/colors';
-import { spacing } from '../constants/spacing';
+import { useTasks, useStats } from '../../hooks';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
+import { Card } from '../../components/Card';
+import { colors } from '../../constants/colors';
+import { spacing } from '../../constants/spacing';
 
 type PeriodType = 'day' | 'week' | 'month' | 'year';
 
