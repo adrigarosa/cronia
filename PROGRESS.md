@@ -102,12 +102,27 @@
 
 ---
 
-### 1.5 ⏳ SQLite Setup (PENDIENTE)
-**Tasks:**
-- [ ] expo-sqlite instalación
-- [ ] Inicialización de base de datos
-- [ ] Migraciones v0
-- [ ] Funciones CRUD base
+### 1.5 ✅ SQLite Setup (COMPLETO)
+**Commit:** `62d76ff`
+
+- [x] expo-sqlite v10 instalado
+- [x] Esquema SQL completo con 8 tablas
+- [x] Índices para performance
+- [x] Inicialización automática de DB
+- [x] Funciones CRUD para tareas
+- [x] 24 tests nuevos (100% pasando)
+
+**Base de datos:**
+- `categories` - 6 categorías predeterminadas
+- `records` - Base unificada para todos los tipos
+- `tasks`, `notes`, `events`, `habits` - Específicas por tipo
+- `habit_logs` - Tracking diario de hábitos
+- `record_categories` - Relación many-to-many
+
+**Funciones CRUD:**
+- createTask, getTask, getTasks, updateTask, completeTask, deleteTask
+- getTasksByStatus, countTasksByStatus, getOverdueTasks
+- getCategories, getCategoryById, createCategory
 
 ---
 
@@ -144,6 +159,16 @@
 
 ---
 
+## 📊 Test Coverage
+
+**Total Tests:** 56 tests (100% passing)
+- Database schema tests: 6
+- Database types tests: 16
+- Validators tests: 20
+- Color utilities tests: 8
+- Services tests: 2
+- Component tests: 4 (React Native - pending)
+
 ## 📊 Resumen del Progreso
 
 | Fase | Completado | Total | Estado |
@@ -151,13 +176,13 @@
 | 1.1  | ✅        | 1/1   | DONE   |
 | 1.2  | ✅        | 1/1   | DONE   |
 | 1.3  | ✅        | 1/1   | DONE   |
-| 1.4  | ✅        | 6/8   | DONE   |
-| 1.5  | ⏳ 0%     | 3     | READY  |
+| 1.4  | ✅        | 6/6   | DONE   |
+| 1.5  | ✅        | 4/4   | DONE   |
 | 1.6  | ⏳ 0%     | 4     | READY  |
 | 1.7  | ⏳ 0%     | 3     | READY  |
 | 1.8  | ✅        | 2/2   | DONE   |
 
-**Total Fase 1:** 5/8 subfases completadas (62.5%)
+**Total Fase 1:** 6/8 subfases completadas (75%)
 
 ---
 
