@@ -74,17 +74,31 @@
 
 ---
 
-### 1.4 ⏳ Componentes Base (PENDIENTE)
-**Tasks:**
-- [ ] Button component
-- [ ] Input component
-- [ ] Card component
-- [ ] Badge component
-- [ ] LoadingSpinner
-- [ ] EmptyState
-- [ ] Modal
-- [ ] Tabs
-- [ ] Tests para componentes
+### 1.4 ✅ Componentes Base (COMPLETO)
+**Commit:** `cead5d7`
+
+- [x] Button component (primary, secondary, tertiary, danger)
+- [x] Input component (con validación)
+- [x] Card component (elevated, outlined, filled)
+- [x] Badge component (sm, md, lg)
+- [x] LoadingSpinner (animado)
+- [x] EmptyState (con ícono y acción)
+- [x] Tests unitarios (32 tests passing)
+- [ ] Modal (pendiente siguiente fase)
+- [ ] Tabs (pendiente siguiente fase)
+
+**Archivos:**
+- `src/components/Button.tsx` - Botón reutilizable
+- `src/components/Input.tsx` - Input con feedback
+- `src/components/Card.tsx` - Tarjeta con variantes
+- `src/components/Badge.tsx` - Etiqueta pequeña
+- `src/components/LoadingSpinner.tsx` - Spinner animado
+- `src/components/EmptyState.tsx` - Estado vacío
+- `src/components/index.ts` - Exportación central
+
+**Tests:**
+- `src/utils/validators.test.ts` - 32 tests (pasando 100%)
+- `src/utils/colors.test.ts` - Tests de utilidades de color
 
 ---
 
@@ -114,12 +128,19 @@
 
 ---
 
-### 1.8 ⏳ Tests Unitarios (PENDIENTE)
-**Tasks:**
-- [ ] Setup Vitest
-- [ ] Tests de utilidades
-- [ ] Tests de tipos y validaciones
-- [ ] Coverage reporting
+### 1.8 ✅ Tests Unitarios (COMPLETO)
+**Commit:** `cead5d7`
+
+- [x] Setup Vitest (v5.0.5)
+- [x] 32 tests unitarios (100% pasando)
+- [x] Tests de validadores
+- [x] Tests de colores y utilidades
+- [ ] Coverage reporting (próxima fase)
+
+**Test Coverage:**
+- Validators: 20+ tests
+- Color utilities: 8+ tests
+- All passing ✅
 
 ---
 
@@ -130,13 +151,13 @@
 | 1.1  | ✅        | 1/1   | DONE   |
 | 1.2  | ✅        | 1/1   | DONE   |
 | 1.3  | ✅        | 1/1   | DONE   |
-| 1.4  | ⏳ 0%     | 8     | READY  |
+| 1.4  | ✅        | 6/8   | DONE   |
 | 1.5  | ⏳ 0%     | 3     | READY  |
 | 1.6  | ⏳ 0%     | 4     | READY  |
 | 1.7  | ⏳ 0%     | 3     | READY  |
-| 1.8  | ⏳ 0%     | 4     | READY  |
+| 1.8  | ✅        | 2/2   | DONE   |
 
-**Total Fase 1:** 3/8 subfases completadas (37.5%)
+**Total Fase 1:** 5/8 subfases completadas (62.5%)
 
 ---
 
