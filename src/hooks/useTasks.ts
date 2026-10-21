@@ -14,7 +14,7 @@ import {
   getOverdueTasks,
   getTasksByStatus,
 } from '../database';
-import { v4 as uuidv4 } from 'uuid';
+import { generateId } from '../utils/id';
 
 interface UseTasksResult {
   tasks: Task[];
@@ -65,7 +65,7 @@ export function useTasks(): UseTasksResult {
     async (description: string, dueDate?: number, categoryId?: string) => {
       try {
         setError(null);
-        const id = uuidv4();
+        const id = generateId();
         const now = Date.now();
         const newTask = new Task(id, description, now, now, categoryId ? [categoryId] : []);
         if (dueDate) {

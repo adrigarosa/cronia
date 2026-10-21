@@ -5,7 +5,7 @@ import { withUpdates } from '../utils/clone';
 
 import { useState, useCallback, useEffect } from 'react';
 import { Note } from '../models';
-import { v4 as uuidv4 } from 'uuid';
+import { generateId } from '../utils/id';
 
 interface UseNotesResult {
   notes: Note[];
@@ -39,7 +39,7 @@ export function useNotes(): UseNotesResult {
     async (content: string, classification: 'important' | 'anecdote' | 'reminder' | 'reflection', categoryId?: string) => {
       try {
         setError(null);
-        const id = uuidv4();
+        const id = generateId();
         const now = Date.now();
         const newNote = new Note(id, content, classification, now, now, categoryId ? [categoryId] : []);
         // TODO: Implementar createNote en database
