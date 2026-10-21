@@ -324,6 +324,51 @@
 - Utility layer: 28 tests (Helpers)
 - Component layer: 4 tests (pending)
 
+---
+
+### PHASE 3: FUNCIONALIDADES AVANZADAS ✅ EN PROGRESO (40%)
+
+#### **3.1 Settings Screen & Configuration** ✅
+**Commit:** `6c6e303`
+
+- [x] Hook useSettings con persistencia en AsyncStorage
+- [x] Pantalla Settings completamente funcional
+- [x] Selector de tema (Claro, Oscuro, Automático)
+- [x] Selector de idioma (Español, English)
+- [x] Selector de formato de fecha
+- [x] Selector de formato de hora
+- [x] Switches para notificaciones, sonido, vibración
+- [x] Sección de información de la app
+- [x] 26 tests nuevos
+
+**Configuraciones Disponibles:**
+- theme: light, dark, auto
+- language: es, en
+- dateFormat: DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD
+- timeFormat: 12h, 24h
+- notificationsEnabled, soundEnabled, vibrationEnabled
+
+#### **3.2 Data Export & Import** ✅
+**Commit:** `5558e34`
+
+- [x] Exportar a JSON con estadísticas
+- [x] Exportar a CSV
+- [x] Parsear datos exportados
+- [x] Validar formato de exportación
+- [x] Generar nombres de archivo con timestamp
+- [x] Estadísticas de exportación
+- [x] 24 tests nuevos
+
+**Funciones Export/Import:**
+- exportTasksAsJSON: Exportar con metadata
+- exportTasksAsCSV: Formato CSV estándar
+- parseExportedJSON: Parsear JSON exportado
+- isValidExportFormat: Validar estructura
+- getExportStats: Estadísticas de tareas
+- generateFileName: Generar nombres con timestamp
+
+---
+
 ## 📊 Resumen del Progreso
 
 ### PHASE 1: FUNDAMENTOS ✅ COMPLETADA
@@ -349,6 +394,17 @@
 | 2.4 | Search & Filters | 16 | 1 | ✅ |
 | 2.5 | Stats Dashboard | 15 | 1 | ✅ |
 | **Total Phase 2** | **5/5 (100%)** | **201 tests** | **5 commits** |
+
+### PHASE 3: FUNCIONALIDADES AVANZADAS ✅ EN PROGRESO (40%)
+
+| Subfase | Descripcion | Tests | Commits | Status |
+|---------|-----------|-------|---------|--------|
+| 3.1 | Settings & Configuration | 26 | 1 | ✅ |
+| 3.2 | Data Export/Import | 24 | 1 | ✅ |
+| 3.3 | Theme System | - | TBD | ⏳ |
+| 3.4 | Notifications | - | TBD | ⏳ |
+| 3.5 | Advanced Features | - | TBD | ⏳ |
+| **Total Phase 3** | **2/5 (40%)** | **251 tests** | **2 commits** |
 
 ---
 
