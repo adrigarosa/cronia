@@ -4,5 +4,6 @@
 
 export * from './types';
 export * from './schema';
-export { getDatabase, initializeDatabase, query, queryOne, execute, transaction, getCategories, getCategoryById, createCategory, clearDatabase, closeDatabase } from './db';
+export { getDatabase, initializeDatabase, query, queryOne, execute, transaction, clearDatabase, closeDatabase } from './db';
 export { createTask, getTask, getTasks, getTasksByStatus, updateTask, completeTask, deleteTask, countTasksByStatus, getOverdueTasks } from './tasks';
+export { createCategory, getCategoryById, getCategories, getCategoriesByName, updateCategory, deleteCategory, countCategories, categoryExists } from './categories';

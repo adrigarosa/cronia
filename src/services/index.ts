@@ -3,3 +3,4 @@
  */
 
 export { initDB, isDBInitialized, resetInitState } from './DatabaseService';
+export { seedDefaultCategories, loadDefaultCategories, verifyDefaultCategories } from './CategorySeedService';
