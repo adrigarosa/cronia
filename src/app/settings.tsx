@@ -17,7 +17,7 @@ export default function SettingsScreen() {
 
   if (loading || !settings) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['left', 'right']}>
         <LoadingSpinner />
       </SafeAreaView>
     );
@@ -62,7 +62,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <View style={styles.header}>
         <Text style={styles.title}>Configuracion</Text>
       </View>

@@ -2,9 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { initDB } from '../services/DatabaseService';
+
+const SCREENS = [
+  { name: '(home)', title: 'Cronología', headerTitle: 'CRONIA', icon: 'home' },
+  { name: 'create', title: 'Crear', headerTitle: 'Nuevo registro', icon: 'plus-circle' },
+  { name: 'search', title: 'Buscar', headerTitle: 'Búsqueda y filtros', icon: 'search' },
+  { name: 'stats', title: 'Seguimiento', headerTitle: 'Estadísticas', icon: 'bar-chart' },
+  { name: 'settings', title: 'Ajustes', headerTitle: 'Configuración', icon: 'cog' },
+] as const;
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
@@ -44,167 +52,44 @@ export default function RootLayout() {
 }
 
 function TabsNavigator() {
+  const insets = useSafeAreaInsets();
+
   return (
-    <Tabs id="tabs">
-      {/* HOME - Cronología */}
-      <Tabs.Screen
-        name="(home)"
-        options={{
-          title: 'Cronología',
-          headerTitle: 'CRONIA',
-          headerStyle: {
-            backgroundColor: '#FAF9F5',
-            borderBottomColor: '#E5E3E0',
-            borderBottomWidth: 1,
-          },
-          headerTitleStyle: {
-            fontSize: 18,
-            fontWeight: '600',
-            color: '#1F1E1D',
-          },
-          tabBarStyle: {
-            backgroundColor: '#FAF9F5',
-            borderTopColor: '#E5E3E0',
-            borderTopWidth: 1,
-            paddingBottom: 8,
-            paddingTop: 8,
-            height: 60,
-          },
-          tabBarActiveTintColor: '#8B5CF6',
-          tabBarInactiveTintColor: '#6B6A68',
-          tabBarIcon: ({ color }) => (
-            <FontAwesome name="home" size={24} color={color} />
-          ),
-        }}
-      />
-
-      {/* CREATE - Crear registro */}
-      <Tabs.Screen
-        name="create"
-        options={{
-          title: 'Crear',
-          headerTitle: 'Nuevo registro',
-          headerStyle: {
-            backgroundColor: '#FAF9F5',
-            borderBottomColor: '#E5E3E0',
-            borderBottomWidth: 1,
-          },
-          headerTitleStyle: {
-            fontSize: 18,
-            fontWeight: '600',
-            color: '#1F1E1D',
-          },
-          tabBarStyle: {
-            backgroundColor: '#FAF9F5',
-            borderTopColor: '#E5E3E0',
-            borderTopWidth: 1,
-            paddingBottom: 8,
-            paddingTop: 8,
-            height: 60,
-          },
-          tabBarActiveTintColor: '#8B5CF6',
-          tabBarInactiveTintColor: '#6B6A68',
-          tabBarIcon: ({ color }) => (
-            <FontAwesome name="plus-circle" size={24} color={color} />
-          ),
-        }}
-      />
-
-      {/* SEARCH - Búsqueda y filtros */}
-      <Tabs.Screen
-        name="search"
-        options={{
-          title: 'Buscar',
-          headerTitle: 'Búsqueda y filtros',
-          headerStyle: {
-            backgroundColor: '#FAF9F5',
-            borderBottomColor: '#E5E3E0',
-            borderBottomWidth: 1,
-          },
-          headerTitleStyle: {
-            fontSize: 18,
-            fontWeight: '600',
-            color: '#1F1E1D',
-          },
-          tabBarStyle: {
-            backgroundColor: '#FAF9F5',
-            borderTopColor: '#E5E3E0',
-            borderTopWidth: 1,
-            paddingBottom: 8,
-            paddingTop: 8,
-            height: 60,
-          },
-          tabBarActiveTintColor: '#8B5CF6',
-          tabBarInactiveTintColor: '#6B6A68',
-          tabBarIcon: ({ color }) => (
-            <FontAwesome name="search" size={24} color={color} />
-          ),
-        }}
-      />
-
-      {/* STATS - Seguimiento */}
-      <Tabs.Screen
-        name="stats"
-        options={{
-          title: 'Seguimiento',
-          headerTitle: 'Estadísticas',
-          headerStyle: {
-            backgroundColor: '#FAF9F5',
-            borderBottomColor: '#E5E3E0',
-            borderBottomWidth: 1,
-          },
-          headerTitleStyle: {
-            fontSize: 18,
-            fontWeight: '600',
-            color: '#1F1E1D',
-          },
-          tabBarStyle: {
-            backgroundColor: '#FAF9F5',
-            borderTopColor: '#E5E3E0',
-            borderTopWidth: 1,
-            paddingBottom: 8,
-            paddingTop: 8,
-            height: 60,
-          },
-          tabBarActiveTintColor: '#8B5CF6',
-          tabBarInactiveTintColor: '#6B6A68',
-          tabBarIcon: ({ color }) => (
-            <FontAwesome name="bar-chart" size={24} color={color} />
-          ),
-        }}
-      />
-
-      {/* SETTINGS - Ajustes */}
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Ajustes',
-          headerTitle: 'Configuración',
-          headerStyle: {
-            backgroundColor: '#FAF9F5',
-            borderBottomColor: '#E5E3E0',
-            borderBottomWidth: 1,
-          },
-          headerTitleStyle: {
-            fontSize: 18,
-            fontWeight: '600',
-            color: '#1F1E1D',
-          },
-          tabBarStyle: {
-            backgroundColor: '#FAF9F5',
-            borderTopColor: '#E5E3E0',
-            borderTopWidth: 1,
-            paddingBottom: 8,
-            paddingTop: 8,
-            height: 60,
-          },
-          tabBarActiveTintColor: '#8B5CF6',
-          tabBarInactiveTintColor: '#6B6A68',
-          tabBarIcon: ({ color }) => (
-            <FontAwesome name="cog" size={24} color={color} />
-          ),
-        }}
-      />
+    <Tabs
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#FAF9F5',
+          borderBottomColor: '#E5E3E0',
+          borderBottomWidth: 1,
+        },
+        headerTitleStyle: {
+          fontSize: 18,
+          fontWeight: '600',
+          color: '#1F1E1D',
+        },
+        tabBarStyle: {
+          backgroundColor: '#FAF9F5',
+          borderTopColor: '#E5E3E0',
+          borderTopWidth: 1,
+          paddingTop: 8,
+          paddingBottom: 8 + insets.bottom,
+          height: 60 + insets.bottom,
+        },
+        tabBarActiveTintColor: '#8B5CF6',
+        tabBarInactiveTintColor: '#6B6A68',
+      }}
+    >
+      {SCREENS.map((screen) => (
+        <Tabs.Screen
+          key={screen.name}
+          name={screen.name}
+          options={{
+            title: screen.title,
+            headerTitle: screen.headerTitle,
+            tabBarIcon: ({ color }) => <FontAwesome name={screen.icon} size={24} color={color} />,
+          }}
+        />
+      ))}
     </Tabs>
   );
 }

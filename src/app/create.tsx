@@ -62,7 +62,7 @@ export default function CreateScreen() {
 
   if (selectedType === 'task') {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['left', 'right']}>
         <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
           <View style={styles.header}>
             <Pressable onPress={() => setSelectedType(null)}>
@@ -120,7 +120,7 @@ export default function CreateScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
         <Text style={styles.mainTitle}>¿Que deseas crear?</Text>
 

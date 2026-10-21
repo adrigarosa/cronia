@@ -59,7 +59,7 @@ export default function HomeScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <View style={styles.header}>
         <Text style={styles.title}>Cronologia</Text>
         <Text style={styles.subtitle}>
