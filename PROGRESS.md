@@ -1,9 +1,14 @@
 # 📋 CRONIA - Registro de Progreso
 
 **Proyecto:** Aplicación personal de organización y seguimiento  
-**Versión Expo:** 58.0.16  
-**TypeScript:** 6.0.3  
+**Versión Expo:** 57 (Expo Go compatible; RN 0.86.3, React 19.2.3)  
+**TypeScript:** estricto vía tsconfig del template  
 **Fecha inicio:** 21 de octubre de 2026
+
+> **Estado actual (22/10/2026):** rediseño completo según la plantilla
+> `CRONIA - diseño definitivo.html` (las 6 pantallas). 399 tests vitest + 5 jest
+> pasando, `tsc` y `expo lint` sin errores, bundle Android exporta correctamente.
+> Ver FASE 4 abajo.
 
 ---
 
@@ -287,6 +292,68 @@
 - Promedio de días para completar
 - Distribución por categoría
 - Porcentajes de distribución
+
+---
+
+## ✅ FASE 4: REDISEÑO SEGÚN PLANTILLA (COMPLETA)
+
+Fuente de verdad: `CRONIA - diseño definitivo.html` (ahora en `.docs/`, con capturas PNG en `.docs/CRONIA-png/`).
+Tokens en `src/theme/tokens.ts`, iconos SVG propios en `src/components/icons.tsx`.
+Las páginas "Propuesta B · Aurora" del HTML son una propuesta alternativa, NO el diseño definitivo.
+
+### 4.1 ✅ Tokens e iconos
+**Commit:** `b0403e5`
+
+- [x] Paleta (bg `#F6F5FA`, ink `#1C1B29`, tints por tipo) + tipografías Sora / Plus Jakarta Sans
+- [x] Iconos SVG propios: logo, gear, plus, chevrons, tipos, nav, estados, tag, edit, archive, download, upload
+- [x] 3 temas de colores (cronia / suave / contraste) con swatches
+
+### 4.2 ✅ Esquema v2
+**Commit:** `d169fdf`
+
+- [x] `categories.archived`, `habits.days` (7 chars L..D) con migraciones idempotentes (`PRAGMA table_info`)
+- [x] `recordCategories.ts` (alta/baja/conteo por categoría), `setHabitDayStatus` con upsert
+
+### 4.3 ✅ Dominio de registros
+**Commit:** `85dc1f3`
+
+- [x] `src/domain/records.ts`: `RecordView`, estados efectivos, `recordsOnDay`, `allRecordViews`, `filterRecords`
+- [x] 24 tests puros
+
+### 4.4 ✅ Esqueleto + Cronología
+**Commit:** `1182686`
+
+- [x] Stack raíz con tabs (Cronología/Buscar/Seguimiento), TabBar con píldora activa, FAB solo en Home
+- [x] Ajustes como pantalla stack (engranaje en la cabecera), Crear como modal
+- [x] Home reescrito: cabecera con fecha larga en español, lista agrupada por día, chips de tipo
+
+### 4.5 ✅ Crear
+**Commit:** `d77d4c0`
+
+- [x] Selector de 4 tipos (Tarea/Cita/Nota/Hábito) con ilustración, campos según tipo, pickers nativos, días del hábito, alta rápida de categoría
+
+### 4.6 ✅ Buscar
+**Commit:** `596f8d0`
+
+- [x] Búsqueda con debounce, filtros de tipo/estado/categoría (`Select` modal), resultados con estado vacío/sin resultados
+- [x] 6 tests de `filterRecords` integrados en fase 3
+
+### 4.7 ✅ Seguimiento
+**Commit:** `9171c99`
+
+- [x] `src/domain/stats.ts` puro: rangos de periodo, mezcla T/E/N/H, series apiladas, calendario con `calendarBlanks` (huecos según día real de inicio de mes)
+- [x] Pantalla: segmentos Día/Semana/Mes/Año, total + barra de mezcla, actividad, tareas/citas, anillo de hábitos + rejilla 7 días + calendario mensual, barras por categoría
+- [x] 15 tests
+
+### 4.8 ✅ Ajustes
+**Commit:** `dbbf14f`
+
+- [x] Categorías: altas, renombrado en línea, archivar/restaurar con conteo de registros
+- [x] Apariencia: modo Claro/Oscuro/Sistema (persistido; resuelve con `useColorScheme`) + tema de colores con vista previa en vivo
+- [x] Datos: exportar copia JSON (`expo-file-system` API nueva `File`/`Paths` + `expo-sharing`) y restaurar (`expo-document-picker` + transacción de INSERTs con confirmación)
+- [x] `src/utils/backup.ts` puro (serialización/validación) con 6 tests
+
+**Métricas actuales:** 399 tests vitest + 5 jest · `tsc --noEmit` limpio · `expo lint` 0 errores (25 advertencias preexistentes de archivos antiguos pendientes de retirar) · `npx expo export --platform android` OK (bundle Hermes 3.4 MB).
 
 ---
 
