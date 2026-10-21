@@ -126,12 +126,20 @@
 
 ---
 
-### 1.6 ⏳ Modelo de Datos (PENDIENTE)
-**Tasks:**
-- [ ] TypeScript interfaces para Record
-- [ ] Tipos Task, Note, Event, Habit
-- [ ] Esquema de relaciones
-- [ ] Validaciones Zod
+### 1.6 ✅ Modelo de Datos (COMPLETO)
+**Commit:** `faa74a3`
+
+- [x] Clases TypeScript para Task, Note, Event, Habit, Category
+- [x] Métodos de negocio en cada modelo
+- [x] 41 tests unitarios (100% pasando)
+- [ ] Validaciones Zod (próxima mejora)
+
+**Modelos Implementados:**
+- Task: markComplete, markInProgress, isOverdue, isPending, getTimeRemaining
+- Note: getClassificationLabel, isImportant, getSummary
+- Event: isUpcoming, isInProgress, isPast, getDurationMinutes, markCompleted, markCancelled
+- Habit: activate, deactivate, getDaysSinceStart, hasMinimumDays, getAgeFormatted
+- Category: static helpers DEFAULTS, DEFAULT_NAMES, isDefaultCategory, getDefaultName
 
 ---
 
@@ -161,9 +169,13 @@
 
 ## 📊 Test Coverage
 
-**Total Tests:** 56 tests (100% passing)
+**Total Tests:** 97 tests (100% passing)
 - Database schema tests: 6
 - Database types tests: 16
+- Task model tests: 8
+- Category model tests: 6
+- Event model tests: 8
+- Habit model tests: 8
 - Validators tests: 20
 - Color utilities tests: 8
 - Services tests: 2
@@ -178,11 +190,11 @@
 | 1.3  | ✅        | 1/1   | DONE   |
 | 1.4  | ✅        | 6/6   | DONE   |
 | 1.5  | ✅        | 4/4   | DONE   |
-| 1.6  | ⏳ 0%     | 4     | READY  |
+| 1.6  | ✅        | 5/5   | DONE   |
 | 1.7  | ⏳ 0%     | 3     | READY  |
 | 1.8  | ✅        | 2/2   | DONE   |
 
-**Total Fase 1:** 6/8 subfases completadas (75%)
+**Total Fase 1:** 7/8 subfases completadas (87.5%)
 
 ---
 
