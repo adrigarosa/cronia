@@ -158,7 +158,7 @@ export async function updateEvent(
   await transaction([
     {
       sql: `UPDATE events SET ${fields.join(', ')} WHERE id = ?`,
-      params: params.slice(0, -1),
+      params,
     },
     {
       sql: 'UPDATE records SET updated_at = ? WHERE id = ?',

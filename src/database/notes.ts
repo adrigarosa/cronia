@@ -111,7 +111,7 @@ export async function updateNote(
   await transaction([
     {
       sql: `UPDATE notes SET ${fields.join(', ')} WHERE id = ?`,
-      params: params.slice(0, -1),
+      params,
     },
     {
       sql: 'UPDATE records SET updated_at = ? WHERE id = ?',

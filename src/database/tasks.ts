@@ -115,12 +115,12 @@ export async function updateTask(
     return getTask(id);
   }
 
-  params.push(now, id);
+  params.push(id);
 
   await transaction([
     {
       sql: `UPDATE tasks SET ${fields.join(', ')} WHERE id = ?`,
-      params: params.slice(0, -1),
+      params,
     },
     {
       sql: 'UPDATE records SET updated_at = ? WHERE id = ?',

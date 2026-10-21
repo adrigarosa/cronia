@@ -110,7 +110,7 @@ export async function updateHabit(
   await transaction([
     {
       sql: `UPDATE habits SET ${fields.join(', ')} WHERE id = ?`,
-      params: params.slice(0, -1),
+      params,
     },
     {
       sql: 'UPDATE records SET updated_at = ? WHERE id = ?',
