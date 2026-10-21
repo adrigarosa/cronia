@@ -1,19 +1,20 @@
-import { withUpdates } from '../utils/clone';
 /**
  * Hook personalizado para operaciones CRUD de notas
  */
 
 import { useState, useCallback, useEffect } from 'react';
 import { Note } from '../models';
+import { NoteClassification } from '../database/types';
+import { getNotes, createNote, updateNote, deleteNote } from '../database';
 import { generateId } from '../utils/id';
 
 interface UseNotesResult {
   notes: Note[];
   loading: boolean;
   error: string | null;
-  createNewNote: (content: string, classification: 'important' | 'anecdote' | 'reminder' | 'reflection', categoryId?: string) => Promise<void>;
+  createNewNote: (content: string, classification: NoteClassification) => Promise<void>;
   deleteExistingNote: (id: string) => Promise<void>;
-  updateExistingNote: (id: string, updates: Partial<Note>) => Promise<void>;
+  updateExistingNote: (id: string, updates: Partial<Pick<Note, 'content' | 'classification'>>) => Promise<void>;
   refreshNotes: () => Promise<void>;
 }
 
@@ -26,8 +27,10 @@ export function useNotes(): UseNotesResult {
     try {
       setLoading(true);
       setError(null);
-      // TODO: Implementar query de notas en database/notes.ts
-      setNotes([]);
+      const rows = await getNotes();
+      setNotes(
+        rows.map((n) => new Note(n.id, n.content, n.classification, n.created_at, n.updated_at, []))
+      );
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -36,47 +39,46 @@ export function useNotes(): UseNotesResult {
   }, []);
 
   const createNewNote = useCallback(
-    async (content: string, classification: 'important' | 'anecdote' | 'reminder' | 'reflection', categoryId?: string) => {
+    async (content: string, classification: NoteClassification) => {
       try {
         setError(null);
-        const id = generateId();
-        const now = Date.now();
-        const newNote = new Note(id, content, classification, now, now, categoryId ? [categoryId] : []);
-        // TODO: Implementar createNote en database
-        setNotes((prev) => [newNote, ...prev]);
+        await createNote(generateId(), content, classification);
+        await refreshNotes();
       } catch (err) {
         setError((err as Error).message);
         throw err;
       }
     },
-    []
+    [refreshNotes]
   );
 
-  const deleteExistingNote = useCallback(async (id: string) => {
-    try {
-      setError(null);
-      // TODO: Implementar deleteNote en database
-      setNotes((prev) => prev.filter((note) => note.id !== id));
-    } catch (err) {
-      setError((err as Error).message);
-      throw err;
-    }
-  }, []);
+  const deleteExistingNote = useCallback(
+    async (id: string) => {
+      try {
+        setError(null);
+        await deleteNote(id);
+        await refreshNotes();
+      } catch (err) {
+        setError((err as Error).message);
+        throw err;
+      }
+    },
+    [refreshNotes]
+  );
 
-  const updateExistingNote = useCallback(async (id: string, updates: Partial<Note>) => {
-    try {
-      setError(null);
-      // TODO: Implementar updateNote en database
-      setNotes((prev) =>
-        prev.map((note) =>
-          note.id === id ? withUpdates(note, { ...updates, updated_at: Date.now() }) : note
-        )
-      );
-    } catch (err) {
-      setError((err as Error).message);
-      throw err;
-    }
-  }, []);
+  const updateExistingNote = useCallback(
+    async (id: string, updates: Partial<Pick<Note, 'content' | 'classification'>>) => {
+      try {
+        setError(null);
+        await updateNote(id, updates);
+        await refreshNotes();
+      } catch (err) {
+        setError((err as Error).message);
+        throw err;
+      }
+    },
+    [refreshNotes]
+  );
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect

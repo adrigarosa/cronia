@@ -79,4 +79,29 @@ describe('CRUD against real SQLite', () => {
     const c = await import('./categories');
     expect(await c.countCategories()).toBe(6);
   });
+
+  it('timeline: all four record types appear after creation and disappear after delete', async () => {
+    const t = await import('./tasks');
+    const n = await import('./notes');
+    const e = await import('./events');
+    const h = await import('./habits');
+    const { buildTimeline } = await import('../utils/timeline');
+    const day = new Date(2026, 9, 21).getTime();
+
+    await t.createTask('t1', 'Tarea', day);
+    await n.createNote('n1', 'Nota', 'important');
+    await e.createEvent('e1', 'Evento', day, '09:00', day, '10:00', 'upcoming', 'Oficina');
+    await h.createHabit('h1', 'Habito', day);
+
+    const load = async () =>
+      buildTimeline(await t.getTasks(), await n.getNotes(), await e.getEvents(), await h.getHabits());
+
+    const items = await load();
+    expect(items.map((i) => i.kind).sort()).toEqual(['event', 'habit', 'note', 'task']);
+    expect(items.find((i) => i.kind === 'event')?.subtitle).toContain('Oficina');
+
+    await e.deleteEvent('e1');
+    await h.deleteHabit('h1');
+    expect((await load()).map((i) => i.kind).sort()).toEqual(['note', 'task']);
+  });
 });

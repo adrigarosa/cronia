@@ -1,42 +1,58 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, RefreshControl, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useTasks } from '../../hooks';
-import { RecordItem } from '../../components/RecordItem';
+import { useTimeline } from '../../hooks';
+import { TimelineCard } from '../../components/TimelineCard';
 import { EmptyState } from '../../components/EmptyState';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
+import { TimelineItem } from '../../utils/timeline';
 import { colors } from '../../constants/colors';
 import { spacing } from '../../constants/spacing';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { tasks, loading, error, refreshTasks, completeExistingTask } = useTasks();
+  const { items, loading, error, refresh, complete, remove } = useTimeline();
   const [refreshing, setRefreshing] = useState(false);
-
-  useEffect(() => {
-    refreshTasks();
-  }, []);
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await refreshTasks();
+    await refresh();
     setRefreshing(false);
   };
 
-  const handleRecordPress = (id: string) => {
-    router.push(`/(home)/${id}`);
-  };
-
-  const handleCompleteTask = async (id: string) => {
-    try {
-      await completeExistingTask(id);
-    } catch (err) {
-      console.error('Error completando tarea:', err);
+  const handlePress = (item: TimelineItem) => {
+    if (item.kind === 'task') {
+      router.push({ pathname: '/(home)/[id]', params: { id: item.id } });
     }
   };
 
-  if (loading && tasks.length === 0) {
+  const handleComplete = async (item: TimelineItem) => {
+    try {
+      await complete(item.id);
+    } catch (err) {
+      Alert.alert('Error', (err as Error).message);
+    }
+  };
+
+  const handleLongPress = (item: TimelineItem) => {
+    Alert.alert('Eliminar', 'Quieres eliminar "' + item.title + '"?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Eliminar',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await remove(item.kind, item.id);
+          } catch (err) {
+            Alert.alert('Error', (err as Error).message);
+          }
+        },
+      },
+    ]);
+  };
+
+  if (loading && items.length === 0) {
     return (
       <View style={styles.container}>
         <LoadingSpinner />
@@ -44,7 +60,7 @@ export default function HomeScreen() {
     );
   }
 
-  if (error && tasks.length === 0) {
+  if (error && items.length === 0) {
     return (
       <View style={styles.container}>
         <Text style={styles.errorText}>Error: {error}</Text>
@@ -52,22 +68,14 @@ export default function HomeScreen() {
     );
   }
 
-  const sortedTasks = [...tasks].sort((a, b) => {
-    if (a.status === 'completed' && b.status !== 'completed') return 1;
-    if (a.status !== 'completed' && b.status === 'completed') return -1;
-    return b.created_at - a.created_at;
-  });
-
   return (
     <SafeAreaView style={styles.container} edges={['left', 'right']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Cronologia</Text>
-        <Text style={styles.subtitle}>
-          {tasks.length} registros
-        </Text>
+        <Text style={styles.title}>Cronología</Text>
+        <Text style={styles.subtitle}>{items.length} registros</Text>
       </View>
 
-      {tasks.length === 0 ? (
+      {items.length === 0 ? (
         <EmptyState
           icon="inbox"
           title="Sin registros"
@@ -75,19 +83,18 @@ export default function HomeScreen() {
         />
       ) : (
         <FlatList
-          data={sortedTasks}
-          keyExtractor={(item) => item.id}
+          data={items}
+          keyExtractor={(item) => item.kind + item.id}
           renderItem={({ item }) => (
-            <RecordItem
-              record={item}
-              onPress={handleRecordPress}
-              onComplete={handleCompleteTask}
+            <TimelineCard
+              item={item}
+              onPress={handlePress}
+              onLongPress={handleLongPress}
+              onComplete={handleComplete}
             />
           )}
           contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-          }
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
         />
       )}
     </SafeAreaView>
