@@ -5,12 +5,14 @@ Una aplicación React Native construida con Expo para organizar y hacer seguimie
 ## 🎯 Características Principales
 
 ### Gestión de Registros ✅
+
 - **Tasks/Tareas**: Crear, editar, marcar como completadas, establecer vencimientos
 - **Notes/Notas**: Capturar notas con clasificaciones (importante, anécdota, recordatorio, reflexión)
 - **Events/Eventos**: Gestionar citas y eventos con fecha, hora y ubicación
 - **Habits/Hábitos**: Seguimiento diario de hábitos con estadísticas mensuales
 
 ### Búsqueda y Filtros ✅
+
 - Búsqueda por texto (case-insensitive)
 - Filtrar por estado (Pendiente, En Progreso, Completado)
 - Filtrar por categoría
@@ -18,6 +20,7 @@ Una aplicación React Native construida con Expo para organizar y hacer seguimie
 - Combinar múltiples filtros
 
 ### Estadísticas y Analytics ✅
+
 - Dashboard con métricas principales
 - Tasa de completitud
 - Distribución por estado con gráficos
@@ -27,6 +30,7 @@ Una aplicación React Native construida con Expo para organizar y hacer seguimie
 - Selector de período (Día, Semana, Mes, Año)
 
 ### Extras ✅
+
 - **Categories/Categorías**: 6 categorías predeterminadas
 - **Offline-First**: Todo funciona sin conexión
 - **SQLite Local**: Persistencia segura
@@ -35,6 +39,7 @@ Una aplicación React Native construida con Expo para organizar y hacer seguimie
 ## 🚀 Inicio Rápido
 
 ### Requisitos
+
 - Node.js 18+
 - npm o bun
 - Expo CLI (instalado con npm)
@@ -92,7 +97,7 @@ src/
 └── utils/          # Funciones utilitarias
 ```
 
-Ver [ARCHITECTURE.md](./ARCHITECTURE.md) para documentación detallada.
+Ver [.docs/ARCHITECTURE.md](./.docs/ARCHITECTURE.md) para documentación detallada. Los demás documentos de desarrollo están en [.docs/](./.docs/).
 
 ## 🏗️ Arquitectura
 
@@ -127,7 +132,7 @@ SQLite (Local Storage)
 La base de datos se inicializa automáticamente en el arranque:
 
 ```typescript
-import { initDB } from '@/services';
+import { initDB } from "@/services";
 
 // En App.tsx o componente raíz
 await initDB();
@@ -135,14 +140,10 @@ await initDB();
 
 ## 🧪 Testing
 
-111 tests unitarios cubriendo:
-- Database operations (30 tests)
-- Business models (30 tests)
-- Services (8 tests)
-- Utilities (28 tests)
-- Components (4 tests - pending React Native setup)
+399 tests con vitest y 5 tests de componentes con jest (`npm run test:components`).
 
 **Ejecutar tests:**
+
 ```bash
 npm test -- --run
 ```
@@ -152,14 +153,17 @@ npm test -- --run
 Sistema de diseño basado en tokens:
 
 ### Colores
+
 - **Primario**: #EC4899 (Pink/Personal)
 - **Secundarios**: Colores por categoría
 - **Fondo**: Blanco (claro) / Gris oscuro (dark)
 
 ### Espaciado
+
 - xs (4px), sm (8px), md (16px), lg (24px), xl (32px), xxl (48px)
 
 ### Tipografía
+
 - **Plus Jakarta Sans**: Body
 - **Sora**: Headings
 
@@ -199,52 +203,34 @@ Ver [src/constants/](./src/constants/) para configuración completa.
 
 ## 🚧 Roadmap
 
-### Phase 1: FUNDAMENTOS ✅ COMPLETADA (111 tests)
-- [x] Setup inicial y navegación Expo Router
-- [x] Sistema de diseño completo
-- [x] 6 Componentes base reutilizables
-- [x] SQLite setup con 8 tablas
-- [x] 5 Modelos de datos con lógica de negocio
-- [x] Seed de 6 categorías predeterminadas
-- [x] 111 Tests unitarios
+Estado detallado en [.docs/PROJECT_STATUS.md](./.docs/PROJECT_STATUS.md).
 
-### Phase 2: REGISTROS & CRUD ✅ COMPLETADA (201 tests)
-- [x] Pantalla Home con cronología
-- [x] Pantalla Create con formularios
-- [x] Pantalla Detail para ver/editar
-- [x] Integración completa CRUD
-- [x] Búsqueda y filtros avanzados
-- [x] Stats Dashboard con analytics
-- [x] 90 Tests nuevos
-
-### Phase 3: FUNCIONALIDADES AVANZADAS (Próxima)
-- [ ] Pantalla Settings
-- [ ] Configuración de preferencias
-- [ ] Temas oscuro/claro
-- [ ] Exportación de datos (JSON, CSV)
-- [ ] Importación de registros
-
-### Phase 4: OPTIMIZACIÓN & RELEASE
-- [ ] Performance optimization
-- [ ] Testing completo React Native
-- [ ] Build para iOS y Android
-- [ ] Deployment con EAS
-- [ ] Notificaciones locales
+- [x] Fase 1: Fundamentos
+- [x] Fase 2: Registros y cronología
+- [x] Fase 3: Búsqueda y filtros
+- [x] Fase 4: Seguimiento (estadísticas por día, semana, mes y año)
+- [x] Rediseño según la plantilla definitiva
+- [ ] Fase 5: Robustez y web (copia de seguridad hecha; pendientes pruebas offline, validación web y transferencia entre Android y web)
+- [ ] Build y distribución con EAS
 
 ## 🐛 Troubleshooting
 
 ### Error: "Cannot find expo"
+
 ```bash
 npm install expo --legacy-peer-deps
 ```
 
 ### Error en tests: "Flow is not supported"
+
 Los componentes React Native tienen Flow syntax. Los tests de componentes se ejecutarán cuando se configure React Native Testing Library.
 
 ### BD no se inicializa
+
 Verificar que `initDB()` se llama en el arranque:
+
 ```typescript
-import { initDB } from '@/services';
+import { initDB } from "@/services";
 useEffect(() => {
   initDB();
 }, []);
@@ -267,7 +253,7 @@ Privado - Proyecto personal
 
 ## 👤 Autor
 
-Desarrollado por Agrod
+Desarrollado por Adriana Rodríguez
 
 ## 📞 Soporte
 
