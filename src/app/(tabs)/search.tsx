@@ -149,6 +149,14 @@ export default function BuscarScreen() {
     );
   };
 
+  const showActions = (r: RecordView) => {
+    Alert.alert(r.title, undefined, [
+      { text: 'Editar', onPress: () => router.push({ pathname: '/edit', params: { kind: r.kind, id: r.id } }) },
+      { text: 'Eliminar', style: 'destructive', onPress: () => confirmDelete(r) },
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
+  };
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.header}>
@@ -206,7 +214,8 @@ export default function BuscarScreen() {
             value={picker.value}
             mode="date"
             display={Platform.OS === 'ios' ? 'inline' : 'default'}
-            onChange={onPickerChange}
+            onValueChange={onPickerChange}
+            onDismiss={() => setPicker(null)}
           />
         )}
       </View>
@@ -230,9 +239,11 @@ export default function BuscarScreen() {
                   key={r.kind + r.id + r.dateKey}
                   style={[styles.row, i < results.length - 1 && styles.rowDivider]}
                   onPress={() => {
-                    if (r.kind === 'T') router.push({ pathname: '/[id]', params: { id: r.id } });
+                    if (r.kind === 'T' || r.kind === 'H' || r.kind === 'E' || r.kind === 'N') {
+                      router.push({ pathname: '/[id]', params: { id: r.id, kind: r.kind } });
+                    }
                   }}
-                  onLongPress={() => confirmDelete(r)}
+                  onLongPress={() => showActions(r)}
                 >
                   <View style={styles.dateCol}>
                     <Text style={styles.dateDay}>{d.getDate()}</Text>

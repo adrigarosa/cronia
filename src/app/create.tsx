@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {
   createTask,
@@ -19,12 +19,14 @@ import {
   createEvent,
   createHabit,
   getCategories,
+  getActiveHabits,
   createCategory,
   setRecordCategories,
+  setHabitDayStatus,
 } from '../database';
-import type { Category } from '../database/types';
+import type { Category, Habit } from '../database/types';
 import { fonts, palette, RecordKind } from '../theme/tokens';
-import { startOfDay } from '../domain/records';
+import { dateKey, startOfDay } from '../domain/records';
 import { generateId } from '../utils/id';
 import {
   CloseIcon,
@@ -50,7 +52,18 @@ const SAVE_LABEL: Record<RecordKind, string> = {
   H: 'Crear hábito',
 };
 
-const TASK_STATES = ['Sin iniciar', 'En progreso'];
+const SUCCESS_MESSAGE: Record<RecordKind, string> = {
+  T: 'La tarea se guardó correctamente.',
+  N: 'La nota se guardó correctamente.',
+  E: 'La cita se guardó correctamente.',
+  H: 'El hábito se creó correctamente.',
+};
+
+const HABIT_MODES: { id: 'new' | 'log'; label: string }[] = [
+  { id: 'new', label: 'Nuevo hábito' },
+  { id: 'log', label: 'Registrar cumplimiento' },
+];
+const LOG_STATES = ['Realizado', 'No realizado'];
 const EVENT_STATES = ['Próximamente', 'En curso', 'Realizado', 'Cancelado'];
 const NOTE_CLASSES = ['Idea', 'Reflexión', 'Nota'];
 const DAY_LETTERS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
@@ -87,7 +100,9 @@ function daysToString(days: boolean[]): string {
 type PickerState = { field: string; mode: 'date' | 'time'; value: Date } | null;
 
 export default function CreateScreen() {
-  const [type, setType] = useState<RecordKind>('T');
+  const params = useLocalSearchParams<{ type?: string }>();
+  const [type, setType] = useState<RecordKind>(params.type === 'H' ? 'H' : 'T');
+  const [hMode, setHMode] = useState<'new' | 'log'>('new');
   const [saving, setSaving] = useState(false);
   const [picker, setPicker] = useState<PickerState>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -96,7 +111,6 @@ export default function CreateScreen() {
 
   const [taskDesc, setTaskDesc] = useState('');
   const [taskDue, setTaskDue] = useState<number | null>(null);
-  const [taskSt, setTaskSt] = useState(0);
 
   const [noteContent, setNoteContent] = useState('');
   const [noteCls, setNoteCls] = useState(0);
@@ -114,12 +128,21 @@ export default function CreateScreen() {
   const [hDays, setHDays] = useState<boolean[]>([true, true, true, true, true, false, false]);
   const [hActive, setHActive] = useState(true);
 
+  const [activeHabits, setActiveHabits] = useState<Habit[]>([]);
+  const [logHabit, setLogHabit] = useState<string | null>(null);
+  const [logDay, setLogDay] = useState<number>(() => startOfDay(Date.now()));
+  const [logSt, setLogSt] = useState(0);
+
   useEffect(() => {
     getCategories()
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       .then((all) => setCategories(all.filter((cat) => !cat.archived)))
       .catch(() => {});
+    getActiveHabits()
+      .then(setActiveHabits)
+      .catch(() => {});
   }, []);
+
+  const isHabitLog = type === 'H' && hMode === 'log';
 
   const c = {
     T: { tint: '#EAF2F8', dark: '#1F618D', base: '#2980B9' },
@@ -133,13 +156,14 @@ export default function CreateScreen() {
     return null;
   };
 
-  const buildSave = (): (() => Promise<void>) | null => {
+  const buildSave = (): (() => Promise<number>) | null => {
     if (type === 'T') {
       const desc = taskDesc.trim();
       if (!desc) return fail('Escribe una descripción.');
       return async () => {
-        const t = await createTask(generateId(), desc, taskDue ?? undefined, taskSt === 1 ? 'in_progress' : 'pending');
+        const t = await createTask(generateId(), desc, taskDue ?? undefined, 'pending');
         await setRecordCategories(t.id, cats);
+        return taskDue ?? startOfDay(Date.now());
       };
     }
     if (type === 'N') {
@@ -149,6 +173,7 @@ export default function CreateScreen() {
       return async () => {
         const n = await createNote(generateId(), content, cls);
         await setRecordCategories(n.id, cats);
+        return startOfDay(Date.now());
       };
     }
     if (type === 'E') {
@@ -170,6 +195,16 @@ export default function CreateScreen() {
           evLoc.trim() || undefined
         );
         await setRecordCategories(e.id, cats);
+        return evStartDay;
+      };
+    }
+    if (isHabitLog) {
+      if (!logHabit) return fail('Elige el hábito que quieres registrar.');
+      const habitId = logHabit;
+      const status = logSt === 0 ? 'completed' : 'not_completed';
+      return async () => {
+        await setHabitDayStatus(generateId(), habitId, dateKey(logDay), status);
+        return logDay;
       };
     }
     const name = hName.trim();
@@ -177,6 +212,7 @@ export default function CreateScreen() {
     return async () => {
       const h = await createHabit(generateId(), name, hStart, hActive, daysToString(hDays));
       await setRecordCategories(h.id, cats);
+      return hStart;
     };
   };
 
@@ -185,10 +221,16 @@ export default function CreateScreen() {
     if (!action) return;
     try {
       setSaving(true);
-      await action();
-      router.navigate('/');
+      const day = await action();
+      const message = isHabitLog ? 'El cumplimiento se registró correctamente.' : SUCCESS_MESSAGE[type];
+      Alert.alert('Registro creado', message, [
+        {
+          text: 'OK',
+          onPress: () => router.navigate({ pathname: '/', params: { date: String(day) } }),
+        },
+      ]);
     } catch (err) {
-      Alert.alert('Error', (err as Error).message);
+      Alert.alert('Error al guardar', (err as Error).message);
     } finally {
       setSaving(false);
     }
@@ -223,6 +265,7 @@ export default function CreateScreen() {
       }
       if (current.field === 'evEndDay') setEvEndDay(ts);
       if (current.field === 'hStart') setHStart(ts);
+      if (current.field === 'logDay') setLogDay(ts);
     } else {
       const time = valToTime(selected);
       if (current.field === 'evStartTime') setEvStartTime(time);
@@ -298,17 +341,8 @@ export default function CreateScreen() {
                   </Text>
                 </Pressable>
                 {picker?.field === 'taskDue' && (
-                  <DateTimePicker value={picker.value} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={onPickerChange} />
+                  <DateTimePicker value={picker.value} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onValueChange={onPickerChange} onDismiss={() => setPicker(null)} />
                 )}
-              </Field>
-              <Field label="Estado inicial">
-                <View style={styles.segGrid}>
-                  {TASK_STATES.map((label, i) => (
-                    <Pressable key={label} style={seg(taskSt === i)} onPress={() => setTaskSt(i)}>
-                      <Text style={[styles.segText, taskSt === i && { color: c.dark }]}>{label}</Text>
-                    </Pressable>
-                  ))}
-                </View>
               </Field>
             </>
           )}
@@ -354,7 +388,7 @@ export default function CreateScreen() {
                     <Text style={styles.fieldText}>{formatDateShort(evStartDay)}</Text>
                   </Pressable>
                   {picker?.field === 'evStartDay' && (
-                    <DateTimePicker value={picker.value} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={onPickerChange} />
+                    <DateTimePicker value={picker.value} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onValueChange={onPickerChange} onDismiss={() => setPicker(null)} />
                   )}
                 </Field>
                 <Field label="Hora" style={styles.evNarrow}>
@@ -364,7 +398,7 @@ export default function CreateScreen() {
                     </Text>
                   </Pressable>
                   {picker?.field === 'evStartTime' && (
-                    <DateTimePicker value={picker.value} mode="time" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={onPickerChange} />
+                    <DateTimePicker value={picker.value} mode="time" display={Platform.OS === 'ios' ? 'inline' : 'default'} onValueChange={onPickerChange} onDismiss={() => setPicker(null)} />
                   )}
                 </Field>
                 <Field label="Fin" style={styles.evWide}>
@@ -372,7 +406,7 @@ export default function CreateScreen() {
                     <Text style={styles.fieldText}>{formatDateShort(evEndDay)}</Text>
                   </Pressable>
                   {picker?.field === 'evEndDay' && (
-                    <DateTimePicker value={picker.value} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={onPickerChange} />
+                    <DateTimePicker value={picker.value} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onValueChange={onPickerChange} onDismiss={() => setPicker(null)} />
                   )}
                 </Field>
                 <Field label="Hora" style={styles.evNarrow}>
@@ -382,7 +416,7 @@ export default function CreateScreen() {
                     </Text>
                   </Pressable>
                   {picker?.field === 'evEndTime' && (
-                    <DateTimePicker value={picker.value} mode="time" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={onPickerChange} />
+                    <DateTimePicker value={picker.value} mode="time" display={Platform.OS === 'ios' ? 'inline' : 'default'} onValueChange={onPickerChange} onDismiss={() => setPicker(null)} />
                   )}
                 </Field>
               </View>
@@ -412,6 +446,53 @@ export default function CreateScreen() {
           )}
 
           {type === 'H' && (
+            <View style={styles.segGrid}>
+              {HABIT_MODES.map((m) => (
+                <Pressable key={m.id} style={seg(hMode === m.id)} onPress={() => setHMode(m.id)}>
+                  <Text style={[styles.segText, hMode === m.id && { color: c.dark }]}>{m.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+
+          {isHabitLog && (
+            <>
+              <Field label="Hábito">
+                <View style={styles.catsWrap}>
+                  {activeHabits.map((h) => {
+                    const on = logHabit === h.id;
+                    return (
+                      <Pressable key={h.id} style={[styles.catChip, on && styles.catChipOn]} onPress={() => setLogHabit(h.id)}>
+                        <Text style={[styles.catText, on && { color: palette.white }]}>{h.name}</Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+                {activeHabits.length === 0 && (
+                  <Text style={styles.hint}>No hay hábitos activos. Créalos en Ajustes → Hábitos.</Text>
+                )}
+              </Field>
+              <Field label="Día">
+                <Pressable style={styles.input} onPress={() => openPicker('logDay', 'date', new Date(logDay))}>
+                  <Text style={styles.fieldText}>{formatDateShort(logDay)}</Text>
+                </Pressable>
+                {picker?.field === 'logDay' && (
+                  <DateTimePicker value={picker.value} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onValueChange={onPickerChange} onDismiss={() => setPicker(null)} />
+                )}
+              </Field>
+              <Field label="Resultado">
+                <View style={styles.segGrid}>
+                  {LOG_STATES.map((label, i) => (
+                    <Pressable key={label} style={seg(logSt === i)} onPress={() => setLogSt(i)}>
+                      <Text style={[styles.segText, logSt === i && { color: c.dark }]}>{label}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </Field>
+            </>
+          )}
+
+          {type === 'H' && hMode === 'new' && (
             <>
               <Field label="Nombre del hábito">
                 <TextInput
@@ -427,7 +508,7 @@ export default function CreateScreen() {
                   <Text style={styles.fieldText}>{formatDateShort(hStart)}</Text>
                 </Pressable>
                 {picker?.field === 'hStart' && (
-                  <DateTimePicker value={picker.value} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onChange={onPickerChange} />
+                  <DateTimePicker value={picker.value} mode="date" display={Platform.OS === 'ios' ? 'inline' : 'default'} onValueChange={onPickerChange} onDismiss={() => setPicker(null)} />
                 )}
               </Field>
               <Field label="Días previstos">
@@ -459,6 +540,7 @@ export default function CreateScreen() {
             </>
           )}
 
+          {!isHabitLog && (
           <Field label="Categorías" hint="(una o varias)">
             <View style={styles.catsWrap}>
               {categories.map((cat) => {
@@ -497,6 +579,7 @@ export default function CreateScreen() {
               )}
             </View>
           </Field>
+          )}
         </ScrollView>
 
         <View style={styles.saveBar}>
@@ -505,7 +588,7 @@ export default function CreateScreen() {
             disabled={saving}
             onPress={handleSave}
           >
-            <Text style={styles.saveText}>{saving ? 'Guardando…' : SAVE_LABEL[type]}</Text>
+            <Text style={styles.saveText}>{saving ? 'Guardando…' : isHabitLog ? 'Registrar cumplimiento' : SAVE_LABEL[type]}</Text>
           </Pressable>
         </View>
       </KeyboardAvoidingView>

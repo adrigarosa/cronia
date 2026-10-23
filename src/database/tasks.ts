@@ -88,7 +88,9 @@ export async function getTasksByStatus(status: TaskStatus): Promise<Task[]> {
  */
 export async function updateTask(
   id: string,
-  updates: Partial<Omit<Task, 'id' | 'type' | 'created_at' | 'updated_at' | 'deleted'>>
+  updates: Partial<Omit<Task, 'id' | 'type' | 'created_at' | 'updated_at' | 'deleted' | 'due_date'>> & {
+    due_date?: number | null;
+  }
 ): Promise<Task | null> {
   const now = Date.now();
   const fields: string[] = [];

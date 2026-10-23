@@ -98,6 +98,10 @@ export async function updateHabit(
     fields.push('name = ?');
     params.push(updates.name);
   }
+  if (updates.start_date !== undefined) {
+    fields.push('start_date = ?');
+    params.push(updates.start_date);
+  }
   if (updates.active !== undefined) {
     fields.push('active = ?');
     params.push(updates.active ? 1 : 0);

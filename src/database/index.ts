@@ -13,3 +13,4 @@ export { createHabit, getHabit, getHabits, getActiveHabits, updateHabit, deleteH
 export { setCategoryArchived } from './categories';
 export { setRecordCategories, getRecordCategoryMap, countRecordsByCategory, clearRecordCategories } from './recordCategories';
 export { setHabitDayStatus, getAllHabitLogs } from './habits';
+export { purgeRecord } from './purge';

@@ -28,7 +28,9 @@ import {
   transaction,
 } from '../database';
 import { countRecordsByCategory } from '../database/recordCategories';
-import type { Category } from '../database/types';
+import { seedTestRecords } from '../database/seed';
+import type { Category, Habit } from '../database/types';
+import { summarizeDays } from '../domain/records';
 import { generateId } from '../utils/id';
 import { buildBackupJson, parseBackupJson, BackupFile } from '../utils/backup';
 import { fonts, palette, COLOR_THEMES, ColorThemeId } from '../theme/tokens';
@@ -59,15 +61,21 @@ function countLabel(n: number): string {
 export default function AjustesScreen() {
   const { themeId, setThemeId, mode, setMode, dark } = useAppearance();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [habits, setHabits] = useState<Habit[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
   const [newName, setNewName] = useState('');
 
   const load = useCallback(async () => {
-    const [cats, countsMap] = await Promise.all([getCategories(), countRecordsByCategory()]);
+    const [cats, countsMap, habitList] = await Promise.all([
+      getCategories(),
+      countRecordsByCategory(),
+      getHabits(),
+    ]);
     setCategories(cats);
     setCounts(countsMap);
+    setHabits(habitList);
   }, []);
 
   useFocusEffect(
@@ -209,6 +217,27 @@ export default function AjustesScreen() {
     await load();
   };
 
+  const addTestData = () => {
+    Alert.alert(
+      'Datos de prueba',
+      'Se añadirán 60 registros de ejemplo (tareas, notas, citas y hábitos).',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Añadir',
+          onPress: async () => {
+            try {
+              const n = await seedTestRecords(60);
+              Alert.alert('Listo', `Se añadieron ${n} registros de prueba.`);
+            } catch (err) {
+              Alert.alert('Error', (err as Error).message);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const importBackup = async () => {
     try {
       const res = await DocumentPicker.getDocumentAsync({
@@ -257,6 +286,38 @@ export default function AjustesScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
+        {/* Hábitos */}
+        <View style={styles.section}>
+          <View style={styles.sectionHead}>
+            <Text style={styles.sectionTitle}>Hábitos</Text>
+            <Text style={styles.sectionHint}>{habits.filter((h) => h.active).length} activos</Text>
+          </View>
+          <View style={styles.card}>
+            {habits.map((h, i) => (
+              <Pressable
+                key={h.id}
+                style={[styles.dataRow, i < habits.length - 1 && styles.divider]}
+                onPress={() => router.push({ pathname: '/edit', params: { kind: 'H', id: h.id } })}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.dataText}>{h.name}</Text>
+                  <Text style={styles.sectionHint}>
+                    {summarizeDays(h.days)} · {h.active ? 'Activo' : 'Pausado'}
+                  </Text>
+                </View>
+              </Pressable>
+            ))}
+            {habits.length === 0 && <Text style={styles.note}>Aún no hay hábitos.</Text>}
+            <Pressable
+              style={[styles.dataRow, habits.length > 0 && styles.divider]}
+              onPress={() => router.push({ pathname: '/create', params: { type: 'H' } })}
+            >
+              <PlusIcon size={18} color={palette.ink} />
+              <Text style={styles.dataText}>Nuevo hábito</Text>
+            </Pressable>
+          </View>
+        </View>
+
         {/* Categorías */}
         <View style={styles.section}>
           <View style={styles.sectionHead}>
@@ -435,6 +496,10 @@ export default function AjustesScreen() {
             <Pressable style={styles.dataRow} onPress={importBackup}>
               <UploadIcon size={18} color={palette.ink} />
               <Text style={styles.dataText}>Restaurar desde una copia</Text>
+            </Pressable>
+            <Pressable style={[styles.dataRow, styles.divider]} onPress={addTestData}>
+              <PlusIcon size={18} color={palette.ink} />
+              <Text style={styles.dataText}>Añadir 60 registros de prueba</Text>
             </Pressable>
           </View>
           <Text style={styles.note}>Tus datos se guardan solo en este dispositivo.</Text>

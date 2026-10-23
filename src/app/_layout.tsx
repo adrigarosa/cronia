@@ -64,8 +64,9 @@ export default function RootLayout() {
         >
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="create" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
           <Stack.Screen name="settings" />
-          <Stack.Screen name="[id]" />
+          <Stack.Screen name="(home)" />
         </Stack>
       </AppearanceProvider>
     </SafeAreaProvider>

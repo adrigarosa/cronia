@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRecords } from '../../hooks/useRecords';
 import { useAppearance } from '../../theme/AppearanceContext';
@@ -73,6 +73,14 @@ export default function CronologiaScreen() {
   const [now] = useState(() => Date.now());
   const [selected, setSelected] = useState(() => startOfDay(Date.now()));
   const [kindFilter, setKindFilter] = useState<RecordKind | 'all'>('all');
+  const { date } = useLocalSearchParams<{ date?: string }>();
+
+  useEffect(() => {
+    if (date) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelected(startOfDay(Number(date)));
+    }
+  }, [date]);
 
   const all = useMemo(() => recordsOnDay(source, selected, now), [source, selected, now]);
   const visible = kindFilter === 'all' ? all : all.filter((r) => r.kind === kindFilter);
@@ -109,6 +117,14 @@ export default function CronologiaScreen() {
         { text: 'Eliminar', style: 'destructive', onPress: () => remove(r.kind, r.id) },
       ]
     );
+  };
+
+  const showActions = (r: RecordView) => {
+    Alert.alert(r.title, undefined, [
+      { text: 'Editar', onPress: () => router.push({ pathname: '/edit', params: { kind: r.kind, id: r.id } }) },
+      { text: 'Eliminar', style: 'destructive', onPress: () => confirmDelete(r) },
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
   };
 
   return (
@@ -206,9 +222,11 @@ export default function CronologiaScreen() {
                 key={r.kind + r.id + r.dateKey}
                 style={[styles.row, i < visible.length - 1 && styles.rowDivider]}
                 onPress={() => {
-                  if (r.kind === 'T') router.push({ pathname: '/[id]', params: { id: r.id } });
+                  if (r.kind === 'T' || r.kind === 'H' || r.kind === 'E' || r.kind === 'N') {
+                    router.push({ pathname: '/[id]', params: { id: r.id, kind: r.kind } });
+                  }
                 }}
-                onLongPress={() => confirmDelete(r)}
+                onLongPress={() => showActions(r)}
               >
                 <View style={styles.tileWrap}>
                   <View
@@ -312,8 +330,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   chipOn: { backgroundColor: palette.ink, borderColor: palette.ink },
-  chipLabel: { fontSize: 13, fontFamily: fonts.semibold },
-  chipCount: { fontSize: 11, fontFamily: fonts.bold, paddingHorizontal: 6, paddingVertical: 1, borderRadius: 8, overflow: 'hidden' },
+  chipLabel: { fontSize: 9, fontFamily: fonts.semibold },
+  chipCount: { fontSize: 8, fontFamily: fonts.bold, paddingHorizontal: 3, paddingVertical: 1, borderRadius: 6, overflow: 'hidden' },
   listHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
