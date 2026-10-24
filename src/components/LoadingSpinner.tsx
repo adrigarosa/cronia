@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
-import { Animated, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { Animated, StyleProp, View, ViewStyle } from "react-native";
 import { Colors } from "../constants/colors";
+import { styles } from '../styles/components/LoadingSpinner.styles';
 
 interface LoadingSpinnerProps {
   readonly size?: "sm" | "md" | "lg";
@@ -56,15 +57,5 @@ export default function LoadingSpinner({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  spinner: {
-    borderWidth: 3,
-    borderTopColor: "transparent",
-  },
-});
 
 export { LoadingSpinner };

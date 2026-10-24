@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRecords } from '../../hooks/useRecords';
 import { useAppearance, usePalette } from '../../theme/AppearanceContext';
 import { Select, SelectOption } from '../../components/Select';
-import { fonts, palette, LABELS, RecordKind, TypeColors, Palette } from '../../theme/tokens';
+import { fonts, palette, LABELS, RecordKind, TypeColors } from '../../theme/tokens';
 import {
   allRecordViews,
   filterRecords,
@@ -22,6 +22,7 @@ import {
   NoteStateIcon,
   HabitIcon,
 } from '../../components/icons';
+import { makeStyles } from '../../styles/app/(tabs)/search.styles';
 
 const TYPE_OPTS: SelectOption[] = [
   { id: 'all', label: 'Todos' },
@@ -288,86 +289,3 @@ export default function BuscarScreen() {
     </SafeAreaView>
   );
 }
-
-const makeStyles = (palette: Palette) => StyleSheet.create({
-  screen: { flex: 1, backgroundColor: palette.bg },
-  header: { padding: 20, paddingBottom: 10, gap: 12 },
-  h1: { fontFamily: fonts.display, fontSize: 26, color: palette.ink, marginHorizontal: 4 },
-  searchWrap: { justifyContent: 'center' },
-  searchIcon: { position: 'absolute', left: 14, top: 15, zIndex: 1 },
-  searchInput: {
-    height: 50,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: palette.borderInput,
-    backgroundColor: palette.surface,
-    paddingLeft: 44,
-    paddingRight: 14,
-    fontSize: 15,
-    color: palette.ink,
-    fontFamily: fonts.body,
-  },
-  filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  filterCell: { flexBasis: '47%', flexGrow: 1, gap: 4 },
-  filterLabel: { fontSize: 12, fontFamily: fonts.bold, color: palette.inkSoft },
-  dateField: {
-    height: 44,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: palette.borderInput,
-    backgroundColor: palette.surface,
-    paddingHorizontal: 10,
-    justifyContent: 'center',
-  },
-  dateText: { fontSize: 14, fontFamily: fonts.semibold, color: palette.ink },
-  placeholder: { color: palette.inkSoft },
-  countRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-    paddingHorizontal: 20,
-    paddingVertical: 4,
-  },
-  countText: { fontSize: 13, fontFamily: fonts.bold, color: palette.ink },
-  sortText: { fontSize: 12, color: palette.inkSoft },
-  listScroll: { paddingHorizontal: 16, paddingBottom: 32 },
-  card: {
-    backgroundColor: palette.surface,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: palette.border,
-    overflow: 'hidden',
-  },
-  row: { flexDirection: 'row', gap: 12, alignItems: 'flex-start', padding: 13, paddingLeft: 14, paddingRight: 14 },
-  rowDivider: { borderBottomWidth: 1, borderBottomColor: palette.divider },
-  dateCol: { width: 34, alignItems: 'center', flexShrink: 0 },
-  dateDay: { fontFamily: fonts.display, fontSize: 17, lineHeight: 19, color: palette.ink },
-  dateMon: { fontSize: 11, color: palette.inkSoft },
-  tile: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  rowBody: { flex: 1, minWidth: 0, gap: 3 },
-  title: { fontSize: 15, fontFamily: fonts.semibold, lineHeight: 20 },
-  titleStruck: { textDecorationLine: 'line-through', color: palette.inkSoft },
-  meta: { fontSize: 12, color: palette.inkSoft },
-  empty: { padding: 48, alignItems: 'center', gap: 10 },
-  emptyTitle: { fontSize: 16, fontFamily: fonts.bold, color: palette.ink },
-  emptySub: { fontSize: 14, color: palette.inkSoft, lineHeight: 20, textAlign: 'center' },
-  resetBtn: {
-    marginTop: 6,
-    height: 44,
-    paddingHorizontal: 18,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: palette.ink,
-    backgroundColor: palette.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  resetText: { fontSize: 14, fontFamily: fonts.bold, color: palette.ink },
-});

@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Tabs } from 'expo-router';
 import { ListNavIcon, SearchIcon, BarsNavIcon } from './icons';
-import { fonts, Palette } from '../theme/tokens';
 import { usePalette } from '../theme/AppearanceContext';
+import { makeStyles } from '../styles/components/TabBar.styles';
 
 type TabBarProps = Parameters<NonNullable<React.ComponentProps<typeof Tabs>['tabBar']>>[0];
 
@@ -61,33 +61,3 @@ export function TabBar({ state, navigation }: TabBarProps) {
     </View>
   );
 }
-
-const makeStyles = (palette: Palette) =>
-  StyleSheet.create({
-    bar: {
-      flexDirection: 'row',
-      backgroundColor: palette.surface,
-      borderTopWidth: 1,
-      borderTopColor: palette.border,
-    },
-    item: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 4,
-    },
-    pill: {
-      width: 56,
-      height: 30,
-      borderRadius: 15,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    pillOn: {
-      backgroundColor: palette.navPill,
-    },
-    label: {
-      fontSize: 12,
-      fontFamily: fonts.medium,
-    },
-  });

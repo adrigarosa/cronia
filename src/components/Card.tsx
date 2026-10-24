@@ -1,9 +1,6 @@
 import type React from "react";
 import { Pressable, StyleProp, View, ViewStyle } from "react-native";
-import { Colors } from "../constants/colors";
-import { Spacing } from "../constants/spacing";
-
-type CardVariant = "elevated" | "outlined" | "filled";
+import { CardVariant, getCardContainerStyle } from "../styles/components/Card.styles";
 
 interface CardProps {
   children: React.ReactNode;
@@ -13,12 +10,6 @@ interface CardProps {
   pressable?: boolean;
 }
 
-const backgroundColors: Record<CardVariant, string> = {
-  elevated: Colors.light.card,
-  outlined: Colors.light.background,
-  filled: Colors.light.card,
-};
-
 export default function Card({
   children,
   onPress,
@@ -26,14 +17,7 @@ export default function Card({
   variant = "elevated",
   pressable = false,
 }: Readonly<CardProps>) {
-  const containerStyle: ViewStyle = {
-    backgroundColor: backgroundColors[variant],
-    borderRadius: Spacing.radiusLg,
-    padding: Spacing.md,
-    ...(variant === "outlined"
-      ? { borderWidth: 1, borderColor: Colors.light.border }
-      : {}),
-  };
+  const containerStyle = getCardContainerStyle(variant);
 
   if (pressable || onPress) {
     return (

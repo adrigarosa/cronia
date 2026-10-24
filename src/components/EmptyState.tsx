@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { View, Text, ViewStyle } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Colors } from '../constants/colors';
-import { Spacing } from '../constants/spacing';
+import { styles } from '../styles/components/EmptyState.styles';
 
 interface EmptyStateProps {
   icon?: string;
@@ -50,40 +50,5 @@ export default function EmptyState({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-  },
-  icon: {
-    marginBottom: Spacing.lg,
-    opacity: 0.5,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: Colors.light.text as string,
-    marginBottom: Spacing.sm,
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: 14,
-    color: Colors.light.textSecondary as string,
-    textAlign: 'center',
-    marginBottom: Spacing.lg,
-    lineHeight: 20,
-  },
-  actionButton: {
-    marginTop: Spacing.md,
-  },
-  actionLabel: {
-    color: Colors.light.primary as string,
-    fontSize: 16,
-    fontWeight: '600',
-    textDecorationLine: 'underline',
-  },
-});
 
 export { EmptyState };

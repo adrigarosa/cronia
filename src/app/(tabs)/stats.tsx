@@ -1,18 +1,16 @@
 import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 import { useRecords } from '../../hooks/useRecords';
 import { useAppearance, usePalette } from '../../theme/AppearanceContext';
-import { fonts, Palette } from '../../theme/tokens';
 import { computeStats, PERIOD_LABELS, Period } from '../../domain/stats';
 import { TaskTypeIcon, EventTypeIcon, HabitIcon, CheckIcon, CrossIcon } from '../../components/icons';
+import { makeStyles, BAR_H } from '../../styles/app/(tabs)/stats.styles';
 
 const GRAY_TILE = '#EFEEF3';
 const CAL_FILLS = ['#F2F1F6', '#F8D9BC', '#F0A866', '#E67E22'];
 const CAL_HEAD = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-const CAL_COL = '14.2857%';
-const BAR_H = 128;
 
 function fmt(n: number): string {
   return Math.round(n)
@@ -360,134 +358,3 @@ function LegendSwatch({ color, text, dashed }: { color: string; text: string; da
     </View>
   );
 }
-
-const makeStyles = (palette: Palette) => StyleSheet.create({
-  screen: { flex: 1, backgroundColor: palette.bg },
-  scroll: { padding: 20, paddingBottom: 40, gap: 14 },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingHorizontal: 4 },
-  h1: { fontFamily: fonts.display, fontSize: 26, color: palette.ink },
-  periodLabel: { fontSize: 13, color: palette.inkSoft },
-  segments: {
-    flexDirection: 'row',
-    backgroundColor: palette.segmentTrack,
-    borderRadius: 16,
-    padding: 4,
-    gap: 4,
-  },
-  segment: {
-    flex: 1,
-    height: 42,
-    borderRadius: 12,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    fontSize: 14,
-    fontFamily: fonts.bold,
-    color: palette.inkSoft,
-    overflow: 'hidden',
-    lineHeight: 42,
-  },
-  segmentOn: {
-    backgroundColor: palette.surface,
-    color: palette.ink,
-  },
-  card: {
-    backgroundColor: palette.surface,
-    borderWidth: 1,
-    borderColor: palette.border,
-    borderRadius: 20,
-    padding: 18,
-    gap: 14,
-  },
-  totalRow: { flexDirection: 'row', alignItems: 'baseline', gap: 10 },
-  totalNum: { fontFamily: fonts.display, fontSize: 40, lineHeight: 42, color: palette.ink },
-  totalLabel: { fontSize: 14, color: palette.inkSoft },
-  mixBar: { flexDirection: 'row', height: 14, borderRadius: 7, overflow: 'hidden', gap: 2 },
-  mixGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  mixItem: { flexGrow: 1, flexBasis: '45%', flexDirection: 'row', alignItems: 'center', gap: 8 },
-  mixDot: { width: 10, height: 10, borderRadius: 3 },
-  mixLabel: { fontSize: 13, color: palette.ink, flex: 1 },
-  mixValue: { fontSize: 13, fontFamily: fonts.bold, color: palette.ink },
-  sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  h2: { fontSize: 16, fontFamily: fonts.bold, color: palette.ink },
-  sectionHint: { fontSize: 12, color: palette.inkSoft },
-  headTile: { width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  delta: { fontSize: 12, fontFamily: fonts.bold },
-  chart: { flexDirection: 'row', alignItems: 'flex-end', gap: 6, height: 172 },
-  chartCol: { flex: 1, alignItems: 'center', gap: 4 },
-  chartTotal: { fontSize: 11, fontFamily: fonts.bold, color: palette.ink },
-  chartBar: {
-    width: '100%',
-    maxWidth: 34,
-    height: BAR_H,
-    justifyContent: 'flex-end',
-    borderRadius: 6,
-    overflow: 'hidden',
-    gap: 1,
-  },
-  chartBarCur: { borderWidth: 2, borderColor: palette.ink },
-  chartLabel: { fontSize: 11, color: palette.inkSoft },
-  chartLabelCur: { fontWeight: '700', color: palette.ink },
-  tiles2: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  tiles3: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  tile: { flexGrow: 1, flexBasis: '45%', borderRadius: 14, padding: 12, gap: 2 },
-  tileValue: { fontFamily: fonts.display, fontSize: 26, color: palette.ink },
-  tileValueSm: { fontFamily: fonts.display, fontSize: 24, color: palette.ink },
-  tileLabel: { fontSize: 12, fontFamily: fonts.semibold, color: palette.ink },
-  deletedRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 10,
-    borderRadius: 12,
-    backgroundColor: palette.bg,
-    gap: 8,
-  },
-  deletedLabel: { fontSize: 13, color: palette.inkSoft, flex: 1 },
-  deletedValue: { fontSize: 14, fontFamily: fonts.bold, color: palette.ink },
-  habitTop: { flexDirection: 'row', alignItems: 'center', gap: 18 },
-  ringWrap: { width: 124, height: 124 },
-  ringCenter: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ringPct: { fontFamily: fonts.display, fontSize: 26, color: palette.ink },
-  ringLabel: { fontSize: 11, color: palette.inkSoft },
-  habitRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  habitRowLabel: { fontSize: 13, color: palette.inkSoft },
-  habitRowValue: { fontSize: 13, fontFamily: fonts.bold, color: palette.ink },
-  tinyNote: { fontSize: 11, color: palette.inkSoft, lineHeight: 15 },
-  subLabel: { fontSize: 13, fontFamily: fonts.bold, color: palette.ink },
-  gridRow: { flexDirection: 'row', gap: 5, alignItems: 'center' },
-  gridName: { width: 88, fontSize: 12, fontFamily: fonts.semibold, color: palette.ink },
-  gridHead: { flex: 1, textAlign: 'center', fontSize: 11, color: palette.inkSoft, fontWeight: '600' },
-  gridHeadToday: { fontWeight: '700', color: palette.ink },
-  gridCell: {
-    flex: 1,
-    height: 30,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  legend: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
-  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  legendSwatch: { width: 12, height: 12, borderRadius: 4 },
-  calGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 5 },
-  calHead: { width: CAL_COL, textAlign: 'center', fontSize: 11, fontFamily: fonts.bold, color: palette.inkSoft },
-  calCell: {
-    width: CAL_COL,
-    aspectRatio: 1,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  calNum: { fontSize: 12, fontFamily: fonts.semibold, color: palette.ink },
-  catRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  catLabel: { width: 72, fontSize: 13, fontFamily: fonts.semibold, color: palette.ink },
-  catTrack: { flex: 1, height: 10, borderRadius: 5, backgroundColor: palette.muted, overflow: 'hidden' },
-  catValue: { width: 40, textAlign: 'right', fontSize: 13, fontFamily: fonts.bold, color: palette.ink },
-});
