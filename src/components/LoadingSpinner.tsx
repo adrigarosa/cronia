@@ -1,16 +1,22 @@
-import React, { useEffect, useMemo } from 'react';
-import { View, Animated, StyleSheet, ViewStyle } from 'react-native';
-import { Colors } from '../constants/colors';
+import { useEffect, useMemo } from "react";
+import { Animated, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { Colors } from "../constants/colors";
 
 interface LoadingSpinnerProps {
-  size?: 'sm' | 'md' | 'lg';
-  color?: string;
-  style?: ViewStyle;
+  readonly size?: "sm" | "md" | "lg";
+  readonly color?: string;
+  readonly style?: StyleProp<ViewStyle>;
 }
 
+const spinnerSizes: Record<NonNullable<LoadingSpinnerProps["size"]>, number> = {
+  sm: 24,
+  md: 40,
+  lg: 60,
+};
+
 export default function LoadingSpinner({
-  size = 'md',
-  color = Colors.light.primary as string,
+  size = "md",
+  color = Colors.light.primary,
   style,
 }: LoadingSpinnerProps) {
   const spinValue = useMemo(() => new Animated.Value(0), []);
@@ -21,29 +27,16 @@ export default function LoadingSpinner({
         toValue: 1,
         duration: 1000,
         useNativeDriver: true,
-      })
+      }),
     ).start();
   }, [spinValue]);
 
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
+    outputRange: ["0deg", "360deg"],
   });
 
-  const getSize = (): number => {
-    switch (size) {
-      case 'sm':
-        return 24;
-      case 'md':
-        return 40;
-      case 'lg':
-        return 60;
-      default:
-        return 40;
-    }
-  };
-
-  const diameter = getSize();
+  const diameter = spinnerSizes[size];
 
   return (
     <View style={[styles.container, style]}>
@@ -65,12 +58,12 @@ export default function LoadingSpinner({
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   spinner: {
     borderWidth: 3,
-    borderTopColor: 'transparent',
+    borderTopColor: "transparent",
   },
 });
 

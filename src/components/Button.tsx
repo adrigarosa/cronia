@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, Text, ViewStyle, TextStyle } from 'react-native';
+import { Pressable, StyleProp, Text, ViewStyle, TextStyle } from 'react-native';
 import { Spacing } from '../constants/spacing';
 import { useThemeColors } from '../theme/AppearanceContext';
 
@@ -12,10 +12,22 @@ interface ButtonProps {
   variant?: ButtonVariant;
   size?: ButtonSize;
   disabled?: boolean;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   fullWidth?: boolean;
   loading?: boolean;
 }
+
+const buttonPadding: Record<ButtonSize, number> = {
+  sm: Spacing.sm,
+  md: Spacing.md,
+  lg: Spacing.lg,
+};
+
+const textSizes: Record<ButtonSize, number> = {
+  sm: 14,
+  md: 16,
+  lg: 18,
+};
 
 export default function Button({
   label,
@@ -26,65 +38,26 @@ export default function Button({
   style,
   fullWidth = false,
   loading = false,
-}: ButtonProps) {
+}: Readonly<ButtonProps>) {
   const C = useThemeColors();
 
-  const getBackgroundColor = (): string => {
-    if (disabled) return C.border;
-    switch (variant) {
-      case 'primary':
-        return C.primary as string;
-      case 'secondary':
-        return C.card as string;
-      case 'tertiary':
-        return 'transparent';
-      case 'danger':
-        return C.danger as string;
-      default:
-        return C.primary as string;
-    }
+  const backgroundColors: Record<ButtonVariant, string> = {
+    primary: C.primary,
+    secondary: C.card,
+    tertiary: 'transparent',
+    danger: C.danger,
   };
 
-  const getTextColor = (): string => {
-    if (variant === 'secondary' || variant === 'tertiary') {
-      return C.text as string;
-    }
-    return '#fff';
-  };
-
-  const getPadding = (): number => {
-    switch (size) {
-      case 'sm':
-        return Spacing.sm;
-      case 'md':
-        return Spacing.md;
-      case 'lg':
-        return Spacing.lg;
-      default:
-        return Spacing.md;
-    }
-  };
-
-  const getTextSize = (): number => {
-    switch (size) {
-      case 'sm':
-        return 14;
-      case 'md':
-        return 16;
-      case 'lg':
-        return 18;
-      default:
-        return 16;
-    }
-  };
+  const padding = buttonPadding[size];
+  const isTextButton = variant === 'secondary' || variant === 'tertiary';
 
   const containerStyle: ViewStyle = {
-    paddingVertical: getPadding(),
-    paddingHorizontal: getPadding() * 1.5,
+    paddingVertical: padding,
+    paddingHorizontal: padding * 1.5,
     borderRadius: Spacing.radius,
-    backgroundColor: getBackgroundColor(),
+    backgroundColor: disabled ? C.border : backgroundColors[variant],
     borderWidth: variant === 'secondary' ? 1 : 0,
-    borderColor: variant === 'secondary' ? (C.border as string) : undefined,
+    borderColor: variant === 'secondary' ? C.border : undefined,
     opacity: disabled ? 0.5 : 1,
     width: fullWidth ? '100%' : 'auto',
     minHeight: Spacing.touchableMinHeight,
@@ -93,8 +66,8 @@ export default function Button({
   };
 
   const textStyle: TextStyle = {
-    color: getTextColor(),
-    fontSize: getTextSize(),
+    color: isTextButton ? C.text : '#fff',
+    fontSize: textSizes[size],
     fontWeight: '600',
   };
 

@@ -1,67 +1,59 @@
-import React from 'react';
-import { View, ViewStyle, Pressable } from 'react-native';
-import { Colors } from '../constants/colors';
-import { Spacing } from '../constants/spacing';
+import type React from "react";
+import { Pressable, StyleProp, View, ViewStyle } from "react-native";
+import { Colors } from "../constants/colors";
+import { Spacing } from "../constants/spacing";
+
+type CardVariant = "elevated" | "outlined" | "filled";
 
 interface CardProps {
   children: React.ReactNode;
   onPress?: () => void;
-  style?: ViewStyle;
-  variant?: 'elevated' | 'outlined' | 'filled';
+  style?: StyleProp<ViewStyle>;
+  variant?: CardVariant;
   pressable?: boolean;
 }
+
+const backgroundColors: Record<CardVariant, string> = {
+  elevated: Colors.light.card,
+  outlined: Colors.light.background,
+  filled: Colors.light.card,
+};
 
 export default function Card({
   children,
   onPress,
   style,
-  variant = 'elevated',
+  variant = "elevated",
   pressable = false,
-}: CardProps) {
-  const getBackgroundColor = (): string => {
-    switch (variant) {
-      case 'outlined':
-        return Colors.light.background as string;
-      case 'filled':
-        return Colors.light.card as string;
-      case 'elevated':
-      default:
-        return Colors.light.card as string;
-    }
-  };
-
-  const getBorderStyle = () => {
-    switch (variant) {
-      case 'outlined':
-        return {
-          borderWidth: 1,
-          borderColor: Colors.light.border as string,
-        };
-      default:
-        return {};
-    }
-  };
-
+}: Readonly<CardProps>) {
   const containerStyle: ViewStyle = {
-    backgroundColor: getBackgroundColor(),
+    backgroundColor: backgroundColors[variant],
     borderRadius: Spacing.radiusLg,
     padding: Spacing.md,
-    ...getBorderStyle(),
+    ...(variant === "outlined"
+      ? { borderWidth: 1, borderColor: Colors.light.border }
+      : {}),
   };
 
-  const Component = pressable || !!onPress ? Pressable : View;
+  if (pressable || onPress) {
+    return (
+      <Pressable
+        style={({ pressed }) => [
+          containerStyle,
+          pressed ? { opacity: 0.8 } : {},
+          style,
+        ]}
+        onPress={onPress}
+      >
+        {children}
+      </Pressable>
+    );
+  }
 
   return (
-    <Component
-      style={({ pressed }) => [
-        containerStyle,
-        pressed && (pressable || !!onPress) ? { opacity: 0.8 } : {},
-        style,
-      ]}
-      onPress={onPress}
-    >
+    <View style={[containerStyle, style]}>
       {children}
-    </Component>
+    </View>
   );
 }
 
