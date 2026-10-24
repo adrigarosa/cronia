@@ -12,8 +12,8 @@ import {
 } from '@expo-google-fonts/plus-jakarta-sans';
 import { Sora_600SemiBold, Sora_700Bold } from '@expo-google-fonts/sora';
 import { initDB } from '../services/DatabaseService';
-import { AppearanceProvider } from '../theme/AppearanceContext';
 import { palette } from '../theme/tokens';
+import { AppearanceProvider, useAppearance, usePalette } from '../theme/AppearanceContext';
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
@@ -55,20 +55,30 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AppearanceProvider>
-        <StatusBar style="dark" />
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: palette.bg },
-          }}
-        >
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="create" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="settings" />
-          <Stack.Screen name="(home)" />
-        </Stack>
+        <AppShell />
       </AppearanceProvider>
     </SafeAreaProvider>
+  );
+}
+
+function AppShell() {
+  const { dark } = useAppearance();
+  const pal = usePalette();
+  return (
+    <>
+      <StatusBar style={dark ? 'light' : 'dark'} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: pal.bg },
+        }}
+      >
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="create" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="edit" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="settings" />
+        <Stack.Screen name="(home)" />
+      </Stack>
+    </>
   );
 }

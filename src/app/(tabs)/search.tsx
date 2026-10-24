@@ -4,9 +4,9 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRecords } from '../../hooks/useRecords';
-import { useAppearance } from '../../theme/AppearanceContext';
+import { useAppearance, usePalette } from '../../theme/AppearanceContext';
 import { Select, SelectOption } from '../../components/Select';
-import { fonts, palette, LABELS, RecordKind, TypeColors } from '../../theme/tokens';
+import { fonts, palette, LABELS, RecordKind, TypeColors, Palette } from '../../theme/tokens';
 import {
   allRecordViews,
   filterRecords,
@@ -81,6 +81,8 @@ function formatDateShort(ts: number): string {
 }
 
 export default function BuscarScreen() {
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
   const { source, categories, remove } = useRecords();
   const { colors } = useAppearance();
   const [now] = useState(() => Date.now());
@@ -287,7 +289,7 @@ export default function BuscarScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (palette: Palette) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.bg },
   header: { padding: 20, paddingBottom: 10, gap: 12 },
   h1: { fontFamily: fonts.display, fontSize: 26, color: palette.ink, marginHorizontal: 4 },
@@ -298,7 +300,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: palette.borderInput,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     paddingLeft: 44,
     paddingRight: 14,
     fontSize: 15,
@@ -313,7 +315,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: palette.borderInput,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     paddingHorizontal: 10,
     justifyContent: 'center',
   },
@@ -330,7 +332,7 @@ const styles = StyleSheet.create({
   sortText: { fontSize: 12, color: palette.inkSoft },
   listScroll: { paddingHorizontal: 16, paddingBottom: 32 },
   card: {
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     borderRadius: 18,
     borderWidth: 1,
     borderColor: palette.border,
@@ -363,7 +365,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     borderWidth: 1,
     borderColor: palette.ink,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },

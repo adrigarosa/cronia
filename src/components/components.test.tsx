@@ -1,10 +1,10 @@
 import { describe, it, expect, jest } from '@jest/globals';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
-import Button from './Button';
-import Badge from './Badge';
-import Card from './Card';
-import EmptyState from './EmptyState';
+import { Button } from './Button';
+import { Badge } from './Badge';
+import { Card } from './Card';
+import { EmptyState } from './EmptyState';
 import { Text } from 'react-native';
 
 describe('Button', () => {

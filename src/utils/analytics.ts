@@ -72,7 +72,7 @@ export function calculateTaskStats(tasks: Task[]): TaskStats {
  */
 export function calculateCategoryStats(
   tasks: Task[],
-  categories: Array<{ id: string; name: string }>
+  categories: { id: string; name: string }[]
 ): CategoryStats[] {
   return categories.map((category) => {
     const categoryTasks = tasks.filter((t) =>

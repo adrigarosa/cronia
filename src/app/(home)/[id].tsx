@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, TextInput, Alert, Platform, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -7,7 +7,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTasks } from '../../hooks';
 import { Button } from '../../components/Button';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
-import { colors } from '../../constants/colors';
+import { Colors } from '../../constants/colors';
+import { useThemeColors } from '../../theme/AppearanceContext';
 import { spacing } from '../../constants/spacing';
 import { Task } from '../../models';
 import {
@@ -73,6 +74,9 @@ function timeToVal(time: string): Date {
 type PickerState = { field: string; mode: 'date' | 'time'; value: Date } | null;
 
 export default function DetailScreen() {
+  const themeColors = useThemeColors();
+  const colors = useMemo(() => ({ light: themeColors }), [themeColors]);
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const { id, kind } = useLocalSearchParams<{ id: string; kind?: string }>();
   const isHabit = kind === 'H';
   const isEvent = kind === 'E';
@@ -597,7 +601,7 @@ export default function DetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: { light: typeof Colors.light }) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.light.background,

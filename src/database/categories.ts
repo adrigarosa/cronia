@@ -2,7 +2,7 @@
  * Operaciones CRUD para categorias
  */
 
-import { execute, query, queryOne, transaction } from './db';
+import { execute, query, queryOne } from './db';
 import { Category } from './types';
 
 /**

@@ -33,8 +33,8 @@ import type { Category, Habit } from '../database/types';
 import { summarizeDays } from '../domain/records';
 import { generateId } from '../utils/id';
 import { buildBackupJson, parseBackupJson, BackupFile } from '../utils/backup';
-import { fonts, palette, COLOR_THEMES, ColorThemeId } from '../theme/tokens';
-import { useAppearance, ColorMode } from '../theme/AppearanceContext';
+import { fonts, COLOR_THEMES, ColorThemeId, Palette } from '../theme/tokens';
+import { useAppearance, usePalette, ColorMode } from '../theme/AppearanceContext';
 import {
   ChevronLeftIcon,
   TagIcon,
@@ -60,6 +60,8 @@ function countLabel(n: number): string {
 
 export default function AjustesScreen() {
   const { themeId, setThemeId, mode, setMode, dark } = useAppearance();
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
@@ -395,7 +397,7 @@ export default function AjustesScreen() {
                 accessibilityLabel="Nombre de la nueva categoría"
               />
               <Pressable style={styles.addBtn} onPress={addCategory}>
-                <PlusIcon size={14} color={palette.white} strokeWidth={2.8} />
+                <PlusIcon size={14} color={palette.onInk} strokeWidth={2.8} />
                 <Text style={styles.addBtnText}>Añadir</Text>
               </Pressable>
             </View>
@@ -509,7 +511,7 @@ export default function AjustesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (palette: Palette) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.bg },
   header: {
     padding: 14,
@@ -539,14 +541,14 @@ const styles = StyleSheet.create({
   },
   sectionHint: { fontSize: 12, color: palette.inkSoft },
   card: {
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     borderWidth: 1,
     borderColor: palette.border,
     borderRadius: 16,
     overflow: 'hidden',
   },
   cardPadded: {
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     borderWidth: 1,
     borderColor: palette.border,
     borderRadius: 16,
@@ -576,7 +578,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 2,
     borderColor: palette.ink,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     paddingHorizontal: 10,
     fontSize: 15,
     color: palette.ink,
@@ -590,14 +592,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  saveBtnText: { fontSize: 13, fontFamily: fonts.bold, color: palette.white },
+  saveBtnText: { fontSize: 13, fontFamily: fonts.bold, color: palette.onInk },
   cancelBtn: {
     width: 40,
     height: 40,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: palette.borderInput,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -618,7 +620,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: palette.borderInput,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     paddingHorizontal: 12,
     fontSize: 14,
     color: palette.ink,
@@ -633,7 +635,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
   },
-  addBtnText: { fontSize: 13, fontFamily: fonts.bold, color: palette.white },
+  addBtnText: { fontSize: 13, fontFamily: fonts.bold, color: palette.onInk },
   archRow: { minHeight: 48, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 10 },
   archText: { flex: 1, fontSize: 14, color: palette.inkSoft },
   archName: { fontFamily: fonts.semibold },
@@ -643,7 +645,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: palette.borderInput,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -659,7 +661,7 @@ const styles = StyleSheet.create({
   },
   modeBtn: { flex: 1, height: 38, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
   modeBtnOn: {
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     shadowColor: palette.ink,
     shadowOpacity: 0.14,
     shadowRadius: 3,
@@ -675,7 +677,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: palette.borderInput,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,

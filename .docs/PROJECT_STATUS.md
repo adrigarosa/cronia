@@ -54,7 +54,7 @@ Historial detallado por commit: [PROGRESS.md](./PROGRESS.md).
 | Tests vitest | 399 pasando (32 archivos) |
 | Tests jest (componentes) | 5 pasando |
 | `npx tsc --noEmit` | Sin errores |
-| `npx expo lint` | 0 errores, 25 avisos (de archivos antiguos pendientes de retirar) |
+| `npx expo lint` | 0 errores, 0 avisos |
 
 ---
 
@@ -85,5 +85,4 @@ Todos los documentos de desarrollo están en `.docs/`. `README.md` y `AGENTS.md`
 1. Pruebas de uso offline en Android (modo avión, reinicio, zona horaria).
 2. Decidir el alcance web y validar SQLite en navegador.
 3. Cerrar las decisiones pendientes de la sección 13 de la especificación.
-4. Retirar los archivos antiguos con avisos de lint.
-5. Build y distribución con EAS (`eas build`, `eas update`).
+4. Build y distribución con EAS (`eas build`, `eas update`).

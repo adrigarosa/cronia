@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -25,7 +25,8 @@ import {
   setHabitDayStatus,
 } from '../database';
 import type { Category, Habit } from '../database/types';
-import { fonts, palette, RecordKind } from '../theme/tokens';
+import { fonts, RecordKind, Palette } from '../theme/tokens';
+import { usePalette } from '../theme/AppearanceContext';
 import { dateKey, startOfDay } from '../domain/records';
 import { generateId } from '../utils/id';
 import {
@@ -100,6 +101,8 @@ function daysToString(days: boolean[]): string {
 type PickerState = { field: string; mode: 'date' | 'time'; value: Date } | null;
 
 export default function CreateScreen() {
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
   const params = useLocalSearchParams<{ type?: string }>();
   const [type, setType] = useState<RecordKind>(params.type === 'H' ? 'H' : 'T');
   const [hMode, setHMode] = useState<'new' | 'log'>('new');
@@ -463,7 +466,7 @@ export default function CreateScreen() {
                     const on = logHabit === h.id;
                     return (
                       <Pressable key={h.id} style={[styles.catChip, on && styles.catChipOn]} onPress={() => setLogHabit(h.id)}>
-                        <Text style={[styles.catText, on && { color: palette.white }]}>{h.name}</Text>
+                        <Text style={[styles.catText, on && { color: palette.onInk }]}>{h.name}</Text>
                       </Pressable>
                     );
                   })}
@@ -551,8 +554,8 @@ export default function CreateScreen() {
                     style={[styles.catChip, on && styles.catChipOn]}
                     onPress={() => setCats((prev) => (on ? prev.filter((x) => x !== cat.id) : [...prev, cat.id]))}
                   >
-                    {on && <CheckIcon size={14} color={palette.white} strokeWidth={3} />}
-                    <Text style={[styles.catText, on && { color: palette.white }]}>{cat.name}</Text>
+                    {on && <CheckIcon size={14} color={palette.onInk} strokeWidth={3} />}
+                    <Text style={[styles.catText, on && { color: palette.onInk }]}>{cat.name}</Text>
                   </Pressable>
                 );
               })}
@@ -607,6 +610,8 @@ function Field({
   style?: object;
   children: React.ReactNode;
 }) {
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
   return (
     <View style={[styles.field, style]}>
       <Text style={styles.label}>
@@ -617,7 +622,7 @@ function Field({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (palette: Palette) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.bg },
   header: {
     padding: 14,
@@ -638,7 +643,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
   },
-  typeBtnOff: { backgroundColor: palette.white, borderColor: palette.borderChip, borderWidth: 1 },
+  typeBtnOff: { backgroundColor: palette.surface, borderColor: palette.borderChip, borderWidth: 1 },
   typeLabel: { fontSize: 13, fontFamily: fonts.bold },
   form: { padding: 16, paddingBottom: 120, gap: 18 },
   field: { gap: 8 },
@@ -649,7 +654,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: palette.borderInput,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     paddingHorizontal: 14,
     fontSize: 15,
     color: palette.ink,
@@ -668,7 +673,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 10,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
   },
   segOff: { borderColor: palette.borderInput, borderWidth: 1 },
   segText: { fontSize: 14, fontFamily: fonts.semibold, color: palette.ink },
@@ -683,7 +688,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: palette.borderInput,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -695,7 +700,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: palette.borderInput,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
@@ -714,7 +719,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowRadius: 1.5,
@@ -728,7 +733,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: palette.borderInput,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
@@ -754,7 +759,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: palette.borderInput,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     fontSize: 14,
     color: palette.ink,
     fontFamily: fonts.body,
@@ -768,7 +773,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  newCatAddText: { fontSize: 13, fontFamily: fonts.semibold, color: palette.white },
+  newCatAddText: { fontSize: 13, fontFamily: fonts.semibold, color: palette.onInk },
   saveBar: {
     padding: 12,
     paddingBottom: 20,

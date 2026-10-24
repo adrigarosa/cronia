@@ -4,8 +4,8 @@
  */
 
 import * as SQLite from 'expo-sqlite';
-import { CREATE_TABLES_SQL, SEED_CATEGORIES_SQL, SCHEMA_VERSION } from './schema';
-import { Category, Record as DBRecord, Task, Note, Event, Habit, HabitLog } from './types';
+import { CREATE_TABLES_SQL, SEED_CATEGORIES_SQL } from './schema';
+import { Category } from './types';
 
 let db: SQLite.SQLiteDatabase | null = null;
 
@@ -99,7 +99,7 @@ export async function execute(sql: string, params: (string | number | boolean)[]
 /**
  * Ejecutar múltiples sentencias SQL en una transacción
  */
-export async function transaction(queries: Array<{ sql: string; params?: (string | number | boolean)[] }>): Promise<void> {
+export async function transaction(queries: { sql: string; params?: (string | number | boolean)[] }[]): Promise<void> {
   try {
     const database = await getDatabase();
     await database.withTransactionAsync(async () => {

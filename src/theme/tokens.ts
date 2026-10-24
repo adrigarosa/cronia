@@ -1,4 +1,4 @@
-export const palette = {
+export const paletteLight = {
   bg: '#F6F5FA',
   surface: '#FFFFFF',
   ink: '#1C1B29',
@@ -17,10 +17,45 @@ export const palette = {
   dashed: '#B9B6C9',
   statusOpenBorder: '#CFCCDA',
   white: '#FFFFFF',
+  onInk: '#FFFFFF',
   dark: '#1C1B29',
   darkText: '#F6F5FA',
   error: '#B3261E',
 } as const;
+
+export const paletteDark = {
+  bg: '#14131C',
+  surface: '#22212D',
+  ink: '#F4F3F8',
+  inkSoft: '#A9A7BA',
+  border: '#2E2D3A',
+  borderInput: '#44435A',
+  borderChip: '#3A3948',
+  borderLogo: '#3A3948',
+  divider: '#2A2935',
+  rowFooter: '#1B1A25',
+  muted: '#2A2935',
+  mutedTile: '#2A2935',
+  segmentTrack: '#2A2935',
+  navPill: '#2E2D3B',
+  switchOff: '#4A4958',
+  dashed: '#5E5C70',
+  statusOpenBorder: '#4A4958',
+  white: '#FFFFFF',
+  onInk: '#14131C',
+  dark: '#F4F3F8',
+  darkText: '#14131C',
+  error: '#F2857E',
+} as const;
+
+export type Palette = { [K in keyof typeof paletteLight]: string };
+
+/** Paleta activa: en modo oscuro usa paletteDark. */
+export const palette = paletteLight;
+
+export function getPalette(dark: boolean): Palette {
+  return dark ? paletteDark : paletteLight;
+}
 
 export const fonts = {
   body: 'PlusJakartaSans_400Regular',

@@ -84,7 +84,7 @@ export function isValidExportFormat(data: string): boolean {
       !!parsed.stats &&
       typeof parsed.stats.total === 'number';
     return isValid;
-  } catch (error) {
+  } catch {
     return false;
   }
 }

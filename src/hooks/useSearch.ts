@@ -4,7 +4,6 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { Task } from '../models';
-import { searchNotes } from '../database';
 
 export interface SearchFilters {
   query: string;
@@ -25,7 +24,6 @@ interface UseSearchResult {
 }
 
 export function useSearch(tasks: Task[]): UseSearchResult {
-  const [query, setQuery] = useState('');
   const [filters, setFilters] = useState<SearchFilters>({
     query: '',
   });
@@ -39,7 +37,6 @@ export function useSearch(tasks: Task[]): UseSearchResult {
   }, []);
 
   const resetFilters = useCallback(() => {
-    setQuery('');
     setFilters({ query: '' });
   }, []);
 
@@ -81,7 +78,6 @@ export function useSearch(tasks: Task[]): UseSearchResult {
     query: filters.query,
     filters,
     setQuery: (q: string) => {
-      setQuery(q);
       updateFilters({ query: q });
     },
     setFilters: updateFilters,

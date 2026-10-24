@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, Animated, StyleSheet, ViewStyle } from 'react-native';
 import { Colors } from '../constants/colors';
 
@@ -13,7 +13,7 @@ export default function LoadingSpinner({
   color = Colors.light.primary as string,
   style,
 }: LoadingSpinnerProps) {
-  const spinValue = new Animated.Value(0);
+  const spinValue = useMemo(() => new Animated.Value(0), []);
 
   useEffect(() => {
     Animated.loop(

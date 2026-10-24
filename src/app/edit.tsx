@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -27,7 +27,8 @@ import {
   setRecordCategories,
 } from '../database';
 import type { Category } from '../database/types';
-import { fonts, palette, RecordKind } from '../theme/tokens';
+import { fonts, RecordKind, Palette } from '../theme/tokens';
+import { usePalette } from '../theme/AppearanceContext';
 import { startOfDay } from '../domain/records';
 import { CloseIcon, CheckIcon } from '../components/icons';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -73,6 +74,8 @@ function valToTime(d: Date): string {
 type PickerState = { field: string; mode: 'date' | 'time'; value: Date } | null;
 
 export default function EditScreen() {
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
   const { kind: kindParam, id } = useLocalSearchParams<{ kind: RecordKind; id: string }>();
   const kind = kindParam as RecordKind;
 
@@ -348,8 +351,8 @@ export default function EditScreen() {
                     style={[styles.catChip, on && styles.catChipOn]}
                     onPress={() => setCats((prev) => (on ? prev.filter((x) => x !== cat.id) : [...prev, cat.id]))}
                   >
-                    {on && <CheckIcon size={14} color={palette.white} strokeWidth={3} />}
-                    <Text style={[styles.catText, on && { color: palette.white }]}>{cat.name}</Text>
+                    {on && <CheckIcon size={14} color={palette.onInk} strokeWidth={3} />}
+                    <Text style={[styles.catText, on && { color: palette.onInk }]}>{cat.name}</Text>
                   </Pressable>
                 );
               })}
@@ -384,6 +387,8 @@ function Field({
   style?: object;
   children: React.ReactNode;
 }) {
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
   return (
     <View style={[styles.field, style]}>
       <Text style={styles.label}>
@@ -394,7 +399,7 @@ function Field({
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (palette: Palette) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.bg },
   header: {
     padding: 14,
@@ -416,7 +421,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: palette.borderInput,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     paddingHorizontal: 14,
     fontSize: 15,
     color: palette.ink,
@@ -449,7 +454,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: palette.borderInput,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
@@ -461,7 +466,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: palette.borderInput,
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     paddingHorizontal: 14,
     flexDirection: 'row',
     alignItems: 'center',

@@ -3,8 +3,8 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 import { useRecords } from '../../hooks/useRecords';
-import { useAppearance } from '../../theme/AppearanceContext';
-import { fonts, palette } from '../../theme/tokens';
+import { useAppearance, usePalette } from '../../theme/AppearanceContext';
+import { fonts, Palette } from '../../theme/tokens';
 import { computeStats, PERIOD_LABELS, Period } from '../../domain/stats';
 import { TaskTypeIcon, EventTypeIcon, HabitIcon, CheckIcon, CrossIcon } from '../../components/icons';
 
@@ -21,6 +21,8 @@ function fmt(n: number): string {
 }
 
 export default function SeguimientoScreen() {
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
   const { source, categories } = useRecords();
   const { colors } = useAppearance();
   const [now] = useState(() => Date.now());
@@ -297,7 +299,7 @@ export default function SeguimientoScreen() {
                     styles.calCell,
                     {
                       backgroundColor:
-                        c.level === null ? palette.white : CAL_FILLS[Math.min(c.level, 3)],
+                        c.level === null ? palette.surface : CAL_FILLS[Math.min(c.level, 3)],
                     },
                     c.level === null && { borderWidth: 1, borderColor: palette.border },
                     c.today && { borderWidth: 2, borderColor: palette.ink },
@@ -343,6 +345,8 @@ export default function SeguimientoScreen() {
 }
 
 function LegendSwatch({ color, text, dashed }: { color: string; text: string; dashed?: boolean }) {
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
   return (
     <View style={styles.legendItem}>
       <View
@@ -357,7 +361,7 @@ function LegendSwatch({ color, text, dashed }: { color: string; text: string; da
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (palette: Palette) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: palette.bg },
   scroll: { padding: 20, paddingBottom: 40, gap: 14 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingHorizontal: 4 },
@@ -383,11 +387,11 @@ const styles = StyleSheet.create({
     lineHeight: 42,
   },
   segmentOn: {
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     color: palette.ink,
   },
   card: {
-    backgroundColor: palette.white,
+    backgroundColor: palette.surface,
     borderWidth: 1,
     borderColor: palette.border,
     borderRadius: 20,

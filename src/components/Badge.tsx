@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { View, Text, ViewStyle } from 'react-native';
 import { Colors } from '../constants/colors';
 import { Spacing } from '../constants/spacing';
 
@@ -86,7 +86,5 @@ export default function Badge({
     </View>
   );
 }
-
-const styles = StyleSheet.create({});
 
 export { Badge };

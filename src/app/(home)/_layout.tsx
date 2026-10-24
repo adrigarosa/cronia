@@ -1,8 +1,9 @@
 import React from 'react';
 import { Stack } from 'expo-router';
-import { palette } from '../../theme/tokens';
+import { usePalette } from '../../theme/AppearanceContext';
 
 export default function HomeLayout() {
+  const palette = usePalette();
   return (
     <Stack
       screenOptions={{

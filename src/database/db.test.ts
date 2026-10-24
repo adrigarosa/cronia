@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { CREATE_TABLES_SQL, DEFAULT_CATEGORIES, SEED_CATEGORIES_SQL } from './schema';
 
 describe('Database Schema', () => {

@@ -84,7 +84,7 @@ Ver `src/theme/tokens.ts` y `src/components/icons.tsx`.
 - Tests vitest: 399 pasando (32 archivos).
 - Tests jest (componentes): 5 pasando.
 - `npx tsc --noEmit`: sin errores.
-- `npx expo lint`: 0 errores, 25 avisos.
+- `npx expo lint`: 0 errores, 0 avisos.
 
 ---
 

@@ -1,7 +1,8 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ColorThemeId, getTypePalette, RecordKind, TypeColors } from './tokens';
+import { ColorThemeId, getPalette, getTypePalette, Palette, RecordKind, TypeColors } from './tokens';
+import { Colors } from '../constants/colors';
 
 const THEME_KEY = 'cronia.appearance';
 const MODE_KEY = 'cronia.mode';
@@ -13,9 +14,10 @@ interface AppearanceValue {
   setThemeId: (id: ColorThemeId) => void;
   mode: ColorMode;
   setMode: (mode: ColorMode) => void;
-  /** true cuando el modo resuelto es oscuro (para la vista previa y futuros temas oscuros) */
+  /** true cuando el modo resuelto es oscuro */
   dark: boolean;
   colors: Record<RecordKind, TypeColors>;
+  palette: Palette;
 }
 
 const AppearanceContext = createContext<AppearanceValue>({
@@ -25,6 +27,7 @@ const AppearanceContext = createContext<AppearanceValue>({
   setMode: () => {},
   dark: false,
   colors: getTypePalette('cronia'),
+  palette: getPalette(false),
 });
 
 export function AppearanceProvider({ children }: { children: React.ReactNode }) {
@@ -66,7 +69,15 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
   const dark = mode === 'dark' || (mode === 'auto' && system === 'dark');
 
   const value = useMemo(
-    () => ({ themeId, setThemeId, mode, setMode, dark, colors: getTypePalette(themeId) }),
+    () => ({
+      themeId,
+      setThemeId,
+      mode,
+      setMode,
+      dark,
+      colors: getTypePalette(themeId),
+      palette: getPalette(dark),
+    }),
     [themeId, setThemeId, mode, setMode, dark]
   );
 
@@ -75,4 +86,12 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
 
 export function useAppearance(): AppearanceValue {
   return useContext(AppearanceContext);
+}
+
+export function usePalette(): Palette {
+  return useContext(AppearanceContext).palette;
+}
+
+export function useThemeColors(): typeof Colors.light {
+  return useContext(AppearanceContext).dark ? Colors.dark : Colors.light;
 }

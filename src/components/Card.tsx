@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ViewStyle, Pressable } from 'react-native';
+import { View, ViewStyle, Pressable } from 'react-native';
 import { Colors } from '../constants/colors';
 import { Spacing } from '../constants/spacing';
 
@@ -64,7 +64,5 @@ export default function Card({
     </Component>
   );
 }
-
-const styles = StyleSheet.create({});
 
 export { Card };

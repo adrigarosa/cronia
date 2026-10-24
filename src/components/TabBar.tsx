@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Tabs } from 'expo-router';
 import { ListNavIcon, SearchIcon, BarsNavIcon } from './icons';
-import { fonts, palette } from '../theme/tokens';
+import { fonts, Palette } from '../theme/tokens';
+import { usePalette } from '../theme/AppearanceContext';
 
 type TabBarProps = Parameters<NonNullable<React.ComponentProps<typeof Tabs>['tabBar']>>[0];
 
@@ -18,6 +19,8 @@ const ICONS: Record<string, (p: { size?: number; color?: string }) => React.Reac
  */
 export function TabBar({ state, navigation }: TabBarProps) {
   const insets = useSafeAreaInsets();
+  const palette = usePalette();
+  const styles = useMemo(() => makeStyles(palette), [palette]);
 
   return (
     <View style={[styles.bar, { height: 76 + insets.bottom, paddingBottom: insets.bottom }]}>
@@ -59,31 +62,32 @@ export function TabBar({ state, navigation }: TabBarProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  bar: {
-    flexDirection: 'row',
-    backgroundColor: palette.white,
-    borderTopWidth: 1,
-    borderTopColor: palette.border,
-  },
-  item: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-  },
-  pill: {
-    width: 56,
-    height: 30,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pillOn: {
-    backgroundColor: palette.navPill,
-  },
-  label: {
-    fontSize: 12,
-    fontFamily: fonts.medium,
-  },
-});
+const makeStyles = (palette: Palette) =>
+  StyleSheet.create({
+    bar: {
+      flexDirection: 'row',
+      backgroundColor: palette.surface,
+      borderTopWidth: 1,
+      borderTopColor: palette.border,
+    },
+    item: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 4,
+    },
+    pill: {
+      width: 56,
+      height: 30,
+      borderRadius: 15,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    pillOn: {
+      backgroundColor: palette.navPill,
+    },
+    label: {
+      fontSize: 12,
+      fontFamily: fonts.medium,
+    },
+  });

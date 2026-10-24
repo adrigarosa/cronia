@@ -140,7 +140,9 @@ await initDB();
 
 ## 🧪 Testing
 
-399 tests con vitest y 5 tests de componentes con jest (`npm run test:components`).
+399 tests de lógica con Vitest (32 archivos) y 5 tests de componentes con
+Jest (`npm run test:components`). El conjunto completo se ejecuta con
+`npm test`.
 
 **Ejecutar tests:**
 
@@ -173,12 +175,12 @@ Ver [src/constants/](./src/constants/) para configuración completa.
 
 ```json
 {
-  "expo": "~58.0.16",
-  "expo-router": "~58.0.24",
-  "expo-sqlite": "^14.3.0",
-  "react": "^19.3.0",
-  "react-native": "^0.88.0",
-  "typescript": "^6.0.3",
+  "expo": "^57.0.31",
+  "expo-router": "~57.0.29",
+  "expo-sqlite": "~57.0.4",
+  "react": "19.2.3",
+  "react-native": "0.86.3",
+  "typescript": "~6.0.3",
   "vitest": "^5.0.5"
 }
 ```
@@ -210,8 +212,18 @@ Estado detallado en [.docs/PROJECT_STATUS.md](./.docs/PROJECT_STATUS.md).
 - [x] Fase 3: Búsqueda y filtros
 - [x] Fase 4: Seguimiento (estadísticas por día, semana, mes y año)
 - [x] Rediseño según la plantilla definitiva
-- [ ] Fase 5: Robustez y web (copia de seguridad hecha; pendientes pruebas offline, validación web y transferencia entre Android y web)
+- [ ] Fase 5: Robustez y web (copia de seguridad completada; pendientes pruebas offline, validación web y transferencia entre Android y web)
 - [ ] Build y distribución con EAS
+
+### Próximos pasos
+
+1. Probar el uso offline en Android, incluyendo modo avión, reinicio y
+   cambios de zona horaria.
+2. Validar la persistencia de SQLite en la versión web.
+3. Decidir cómo se transferirán los datos entre Android y web.
+4. Completar validaciones y manejo de errores.
+5. Resolver el alcance de prioridades, eventos pasados, frecuencias de
+   hábitos y notificaciones.
 
 ## 🐛 Troubleshooting
 
@@ -221,9 +233,13 @@ Estado detallado en [.docs/PROJECT_STATUS.md](./.docs/PROJECT_STATUS.md).
 npm install expo --legacy-peer-deps
 ```
 
-### Error en tests: "Flow is not supported"
+### Tests de componentes
 
-Los componentes React Native tienen Flow syntax. Los tests de componentes se ejecutarán cuando se configure React Native Testing Library.
+Los tests de componentes se ejecutan con Jest y `jest-expo`:
+
+```bash
+npm run test:components
+```
 
 ### BD no se inicializa
 
@@ -261,6 +277,6 @@ Para reportar bugs o sugerencias, crear un issue en el repositorio.
 
 ---
 
-**Última actualización**: 21 de octubre de 2026  
-**Status**: Phase 1 Complete ✅ (111 tests passing)  
-**Próxima sesión**: Phase 2 - Registros & Cronología CRUD
+**Última actualización**: 23 de octubre de 2026  
+**Estado**: Fases 1 a 4 completas ✅ · Fase 5 parcial ⚠️  
+**Validación**: 399 tests Vitest + 5 tests Jest, TypeScript sin errores y lint sin avisos

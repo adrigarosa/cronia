@@ -1,7 +1,7 @@
 import React from 'react';
-import { Pressable, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { Colors } from '../constants/colors';
+import { Pressable, Text, ViewStyle, TextStyle } from 'react-native';
 import { Spacing } from '../constants/spacing';
+import { useThemeColors } from '../theme/AppearanceContext';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -27,25 +27,27 @@ export default function Button({
   fullWidth = false,
   loading = false,
 }: ButtonProps) {
+  const C = useThemeColors();
+
   const getBackgroundColor = (): string => {
-    if (disabled) return Colors.light.border;
+    if (disabled) return C.border;
     switch (variant) {
       case 'primary':
-        return Colors.light.primary as string;
+        return C.primary as string;
       case 'secondary':
-        return Colors.light.card as string;
+        return C.card as string;
       case 'tertiary':
         return 'transparent';
       case 'danger':
-        return Colors.light.danger as string;
+        return C.danger as string;
       default:
-        return Colors.light.primary as string;
+        return C.primary as string;
     }
   };
 
   const getTextColor = (): string => {
     if (variant === 'secondary' || variant === 'tertiary') {
-      return Colors.light.text as string;
+      return C.text as string;
     }
     return '#fff';
   };
@@ -82,7 +84,7 @@ export default function Button({
     borderRadius: Spacing.radius,
     backgroundColor: getBackgroundColor(),
     borderWidth: variant === 'secondary' ? 1 : 0,
-    borderColor: variant === 'secondary' ? (Colors.light.border as string) : undefined,
+    borderColor: variant === 'secondary' ? (C.border as string) : undefined,
     opacity: disabled ? 0.5 : 1,
     width: fullWidth ? '100%' : 'auto',
     minHeight: Spacing.touchableMinHeight,
@@ -112,7 +114,5 @@ export default function Button({
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({});
 
 export { Button };
