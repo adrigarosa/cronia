@@ -7,9 +7,9 @@
  * You can remove the `reset-project` script from package.json and safely delete this file after running it.
  */
 
-const fs = require("fs");
-const path = require("path");
-const readline = require("readline");
+const fs = require("node:fs");
+const path = require("node:path");
+const readline = require("node:readline");
 
 const root = process.cwd();
 const oldDirs = ["src", "scripts"];
@@ -70,38 +70,42 @@ const moveDirectories = async (userInput) => {
     }
 
     // Move old directories to new app-example directory or delete them
-    for (const dir of oldDirs) {
-      const oldDirPath = path.join(root, dir);
-      if (fs.existsSync(oldDirPath)) {
-        if (userInput === "y") {
-          const newDirPath = path.join(root, exampleDir, dir);
-          await fs.promises.rename(oldDirPath, newDirPath);
-          console.log(`➡️ /${dir} moved to /${exampleDir}/${dir}.`);
+    await Promise.all(
+      oldDirs.map(async (dir) => {
+        const oldDirPath = path.join(root, dir);
+        if (fs.existsSync(oldDirPath)) {
+          if (userInput === "y") {
+            const newDirPath = path.join(root, exampleDir, dir);
+            await fs.promises.rename(oldDirPath, newDirPath);
+            console.log(`➡️ /${dir} moved to /${exampleDir}/${dir}.`);
+          } else {
+            await fs.promises.rm(oldDirPath, { recursive: true, force: true });
+            console.log(`❌ /${dir} deleted.`);
+          }
         } else {
-          await fs.promises.rm(oldDirPath, { recursive: true, force: true });
-          console.log(`❌ /${dir} deleted.`);
+          console.log(`➡️ /${dir} does not exist, skipping.`);
         }
-      } else {
-        console.log(`➡️ /${dir} does not exist, skipping.`);
-      }
-    }
+      })
+    );
 
     // Move demo assets to /example or delete them
-    for (const asset of exampleAssets) {
-      const assetPath = path.join(root, "assets/images", asset);
-      if (fs.existsSync(assetPath)) {
-        if (userInput === "y") {
-          const newAssetPath = path.join(exampleDirPath, "assets/images", asset);
-          await fs.promises.rename(assetPath, newAssetPath);
-          console.log(
-            `➡️ /assets/images/${asset} moved to /${exampleDir}/assets/images/${asset}.`
-          );
-        } else {
-          await fs.promises.rm(assetPath, { recursive: true, force: true });
-          console.log(`❌ /assets/images/${asset} deleted.`);
+    await Promise.all(
+      exampleAssets.map(async (asset) => {
+        const assetPath = path.join(root, "assets/images", asset);
+        if (fs.existsSync(assetPath)) {
+          if (userInput === "y") {
+            const newAssetPath = path.join(exampleDirPath, "assets/images", asset);
+            await fs.promises.rename(assetPath, newAssetPath);
+            console.log(
+              `➡️ /assets/images/${asset} moved to /${exampleDir}/assets/images/${asset}.`
+            );
+          } else {
+            await fs.promises.rm(assetPath, { recursive: true, force: true });
+            console.log(`❌ /assets/images/${asset} deleted.`);
+          }
         }
-      }
-    }
+      })
+    );
 
     // Create new /src/app directory
     const newAppDirPath = path.join(root, newAppDir);
@@ -136,7 +140,7 @@ rl.question(
   (answer) => {
     const userInput = answer.trim().toLowerCase() || "y";
     if (userInput === "y" || userInput === "n") {
-      moveDirectories(userInput).finally(() => rl.close());
+      void moveDirectories(userInput).finally(() => rl.close());
     } else {
       console.log("❌ Invalid input. Please enter 'Y' or 'N'.");
       rl.close();
